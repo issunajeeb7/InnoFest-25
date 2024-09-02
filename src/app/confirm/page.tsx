@@ -213,14 +213,27 @@ export default function ConfirmationForm() {
                 description: "Your team has been registered for the hackathon.",
             });
             router.push("/confirm/success");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error submitting form:", error);
-            toast({
-                title: "Registration Failed",
-                description:
-                    "There was an error registering your team. Please try again.",
-                variant: "destructive",
-            });
+            if (
+                error.code === "23505" ||
+                error.message.includes(
+                    "duplicate key value violates unique constraint"
+                )
+            ) {
+                toast({
+                    title: "Duplicate submission",
+                    description: "You have already confirmed your slot.",
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Registration Failed",
+                    description:
+                        "There was an error registering your team. Please try again.",
+                    variant: "destructive",
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -472,7 +485,7 @@ export default function ConfirmationForm() {
 
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting
-                                    ? "Submitting..."
+                                    ? "AI is verifying your submission..."
                                     : "Confirm Registration"}
                             </Button>
                         </form>
