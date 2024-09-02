@@ -35,11 +35,11 @@ export default function Home() {
                 description: "Please continue with your team confirmation.",
             });
             router.push("/confirm");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error during login:", error);
             toast({
                 title: "Login Failed",
-                description: "There was an error loging in. Please try again.",
+                description: "There was an error logging in. " + error.message,
                 variant: "destructive",
             });
         } finally {

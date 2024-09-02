@@ -36,6 +36,15 @@ import {
 import { saveAs } from "file-saver";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
+import { useSession } from "@/context/SessionContext";
 
 export default function RegistrationSuccess() {
     const [teamData, setTeamData] = useState(null);
@@ -46,6 +55,7 @@ export default function RegistrationSuccess() {
     const router = useRouter();
     const supabase = createClient();
     const dialogContentRef = useRef(null);
+    const { session, sessionLoading } = useSession();
 
     const generateShareableImage = async () => {
         if (dialogContentRef.current) {
@@ -98,9 +108,7 @@ export default function RegistrationSuccess() {
     if (error) return <div>Error: {error}</div>;
     if (!teamData) return <div>No team data found</div>;
 
-    const shareUrl = teamData.group_photo_url
-        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`
-        : window.location.href;
+    const shareUrl = "https://innofest.vercel.app/";
 
     const shareTitle = `Check out our team: ${teamData.team_name}`;
     const shareDescription = `We're working on ${teamData.problem_statement_title} for the theme: ${teamData.theme}. Wish us luck!`;
@@ -137,7 +145,7 @@ export default function RegistrationSuccess() {
 
                     <div className="flex flex-1 items-center justify-end md:justify-end">
                         <div className="flex items-center gap-4">
-                            <div className="sm:flex sm:gap-4">
+                            <div className="hidden md:flex sm:gap-4">
                                 <Link
                                     className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
                                     href="/"
@@ -152,23 +160,64 @@ export default function RegistrationSuccess() {
                                 </Link>
                             </div>
 
-                            <button className="block rounded bg-gray-100 p-2.5 text-gray-600 transition hover:text-gray-600/75 md:hidden">
-                                <span className="sr-only">Toggle menu</span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="size-5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                </svg>
-                            </button>
+                            <Sheet>
+                                <SheetTrigger className="md:hidden">
+                                    <span className="sr-only">Toggle menu</span>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="size-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M4 6h16M4 12h16M4 18h16"
+                                        />
+                                    </svg>
+                                </SheetTrigger>
+                                <SheetContent>
+                                    <SheetHeader>
+                                        <SheetTitle>Menu</SheetTitle>
+                                        <SheetDescription className="flex flex-col space-y-4">
+                                            {session ? (
+                                                <>
+                                                    <Link
+                                                        className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
+                                                        href="/"
+                                                    >
+                                                        Home
+                                                    </Link>
+                                                    <Link
+                                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                                        href="/logout"
+                                                    >
+                                                        Logout
+                                                    </Link>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Link
+                                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                                        href="/login"
+                                                    >
+                                                        Login
+                                                    </Link>
+
+                                                    <Link
+                                                        className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-800 transition hover:text-gray-600/75 sm:block"
+                                                        href="/signup"
+                                                    >
+                                                        Register
+                                                    </Link>
+                                                </>
+                                            )}
+                                        </SheetDescription>
+                                    </SheetHeader>
+                                </SheetContent>
+                            </Sheet>
                         </div>
                     </div>
                 </div>
@@ -176,7 +225,7 @@ export default function RegistrationSuccess() {
             <section className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Slot confirmed!✅</CardTitle>
+                        <CardTitle>Slot confirmed! ✅</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Table>

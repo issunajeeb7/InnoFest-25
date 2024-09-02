@@ -20,6 +20,14 @@ import { User } from "@supabase/supabase-js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useSession } from "@/context/SessionContext";
 import Link from "next/link";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 
 const genAI = new GoogleGenerativeAI(
     process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
@@ -282,7 +290,7 @@ export default function ConfirmationForm() {
 
                     <div className="flex flex-1 items-center justify-end md:justify-end">
                         <div className="flex items-center gap-4">
-                            <div className="sm:flex sm:gap-4">
+                            <div className="hidden md:flex sm:gap-4">
                                 {session ? (
                                     <>
                                         <Link
@@ -316,24 +324,64 @@ export default function ConfirmationForm() {
                                     </>
                                 )}
                             </div>
+                            <Sheet>
+                                <SheetTrigger className="md:hidden">
+                                    <span className="sr-only">Toggle menu</span>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="size-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M4 6h16M4 12h16M4 18h16"
+                                        />
+                                    </svg>
+                                </SheetTrigger>
+                                <SheetContent>
+                                    <SheetHeader>
+                                        <SheetTitle>Menu</SheetTitle>
+                                        <SheetDescription className="flex flex-col space-y-4">
+                                            {session ? (
+                                                <>
+                                                    <Link
+                                                        className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
+                                                        href="/"
+                                                    >
+                                                        Home
+                                                    </Link>
+                                                    <Link
+                                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                                        href="/logout"
+                                                    >
+                                                        Logout
+                                                    </Link>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Link
+                                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                                        href="/login"
+                                                    >
+                                                        Login
+                                                    </Link>
 
-                            <button className="block rounded bg-gray-100 p-2.5 text-gray-600 transition hover:text-gray-600/75 md:hidden">
-                                <span className="sr-only">Toggle menu</span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="size-5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                </svg>
-                            </button>
+                                                    <Link
+                                                        className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-800 transition hover:text-gray-600/75 sm:block"
+                                                        href="/signup"
+                                                    >
+                                                        Register
+                                                    </Link>
+                                                </>
+                                            )}
+                                        </SheetDescription>
+                                    </SheetHeader>
+                                </SheetContent>
+                            </Sheet>
                         </div>
                     </div>
                 </div>
