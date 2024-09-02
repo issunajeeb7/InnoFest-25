@@ -73,44 +73,62 @@ export default function Page() {
 
                 if (error) throw error;
 
-                const formattedItems: FormattedItem[] = data.map((team) => ({
-                    title: team.team_name,
-                    description: `Solving: ${team.problem_statement_title}`,
-                    header: team.group_photo_url ? (
-                        <Image
-                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${team.group_photo_url}`}
-                            alt={team.team_name}
-                            width={100}
-                            height={100}
-                            className="w-full rounded-md object-cover"
-                        />
-                    ) : (
-                        <Skeleton />
-                    ),
-                    icon: <IconNumber className="h-6 w-6 text-neutral-500" />,
-                    teamId: team.user_id,
-                    ps_number: team.problem_statement_number,
-                }));
-
-                const updatedItems = [
-                    confirmButton,
-                    ...formattedItems,
-                    ...Array(Math.max(0, 25 - formattedItems.length))
-                        .fill(null)
-                        .map((_, index) =>
-                            createPlaceholderItem(
-                                formattedItems.length + index + 1
-                            )
-                        ),
-                ];
-
-                setItems(updatedItems);
+                updateItemsWithTeamData(data);
             } catch (error) {
                 console.error("Error fetching team details:", error);
             }
         };
 
+        const updateItemsWithTeamData = (data: any[]) => {
+            const formattedItems: FormattedItem[] = data.map((team) => ({
+                title: team.team_name,
+                description: `Solving: ${team.problem_statement_title}`,
+                header: team.group_photo_url ? (
+                    <Image
+                        src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${team.group_photo_url}`}
+                        alt={team.team_name}
+                        width={100}
+                        height={100}
+                        className="w-full rounded-md object-cover"
+                    />
+                ) : (
+                    <Skeleton />
+                ),
+                icon: <IconNumber className="h-6 w-6 text-neutral-500" />,
+                teamId: team.user_id,
+                ps_number: team.problem_statement_number,
+            }));
+
+            const updatedItems = [
+                confirmButton,
+                ...formattedItems,
+                ...Array(Math.max(0, 25 - formattedItems.length))
+                    .fill(null)
+                    .map((_, index) =>
+                        createPlaceholderItem(formattedItems.length + index + 1)
+                    ),
+            ];
+
+            setItems(updatedItems);
+        };
+
         fetchTeamDetails();
+
+        const subscription = supabase
+            .channel("teams_changes")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "teams" },
+                (payload) => {
+                    // console.log("Change received!", payload);
+                    fetchTeamDetails();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, [supabase]);
 
     return (
