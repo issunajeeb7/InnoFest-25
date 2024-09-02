@@ -30,7 +30,7 @@ const confirmButton: FormattedItem = {
     title: "Confirm your team now",
     description: "Book your slot by filling out the confirmation form",
     header: (
-        <div className="w-full h-32 bg-blue-200 flex items-center justify-center rounded-md">
+        <div className="w-full h-36 bg-blue-200 flex items-center justify-center rounded-xl">
             <IconSquareRoundedPlus size={48} />
         </div>
     ),
@@ -39,8 +39,26 @@ const confirmButton: FormattedItem = {
     ps_number: 0,
 };
 
+const Skeleton = () => (
+    <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
+);
+
+const createPlaceholderItem = (index: number): FormattedItem => ({
+    title: `Slot for team ${index}`,
+    description: "This slot is yet to be filled",
+    header: <Skeleton />,
+    icon: <IconNumber className="h-6 w-6 text-neutral-500" />,
+    teamId: `placeholder-${index}`,
+    ps_number: index,
+});
+
 export default function Page() {
-    const [items, setItems] = useState<FormattedItem[]>([confirmButton]);
+    const [items, setItems] = useState<FormattedItem[]>([
+        confirmButton,
+        ...Array(25)
+            .fill(null)
+            .map((_, index) => createPlaceholderItem(index + 1)),
+    ]);
     const supabase = createClient();
     const { session, loading } = useSession();
 
@@ -74,7 +92,19 @@ export default function Page() {
                     ps_number: team.problem_statement_number,
                 }));
 
-                setItems([confirmButton, ...formattedItems]);
+                const updatedItems = [
+                    confirmButton,
+                    ...formattedItems,
+                    ...Array(Math.max(0, 25 - formattedItems.length))
+                        .fill(null)
+                        .map((_, index) =>
+                            createPlaceholderItem(
+                                formattedItems.length + index + 1
+                            )
+                        ),
+                ];
+
+                setItems(updatedItems);
             } catch (error) {
                 console.error("Error fetching team details:", error);
             }
@@ -163,7 +193,6 @@ export default function Page() {
                     </div>
                 </div>
             </header>
-
             <BentoGrid className="max-w-4xl mx-auto py-12">
                 {items.map((item, i) =>
                     i === 0 ? (
@@ -191,7 +220,3 @@ export default function Page() {
         </main>
     );
 }
-
-const Skeleton = () => (
-    <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
-);
