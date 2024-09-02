@@ -42,7 +42,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [supabase.auth]);
 
     return (
         <SessionContext.Provider value={{ session, loading }}>
