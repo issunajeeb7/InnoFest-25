@@ -137,7 +137,7 @@ export default function Page() {
                 <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-8 px-4 sm:px-6 lg:px-8">
                     <Link
                         className="text-gray-600 flex items-center space-x-4"
-                        href="#"
+                        href="/"
                     >
                         <span className="sr-only">Home</span>
                         <svg
@@ -165,12 +165,20 @@ export default function Page() {
                         <div className="flex items-center gap-4">
                             <div className="sm:flex sm:gap-4">
                                 {session ? (
-                                    <Link
-                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
-                                        href="/logout"
-                                    >
-                                        Logout
-                                    </Link>
+                                    <>
+                                        <Link
+                                            className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
+                                            href="/confirm/success"
+                                        >
+                                            My details
+                                        </Link>
+                                        <Link
+                                            className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                            href="/logout"
+                                        >
+                                            Logout
+                                        </Link>
+                                    </>
                                 ) : (
                                     <>
                                         <Link

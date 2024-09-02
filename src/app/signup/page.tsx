@@ -79,11 +79,11 @@ export default function Home() {
                 description: "Please check your email to verify your account.",
             });
             router.push("/login");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error during sign up:", error);
             toast({
                 title: "Sign Up Failed",
-                description: "There was an error signing up. Please try again.",
+                description: "There was an error signing up. " + error.message,
                 variant: "destructive",
             });
         } finally {
