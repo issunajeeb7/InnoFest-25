@@ -154,8 +154,6 @@ export default function ConfirmationForm() {
             const response = await result.response;
             const text = response.text();
 
-            console.log(text);
-
             const match = text.match(/People: (\d+), Female: (yes|no)/i);
             if (match) {
                 return {
