@@ -104,7 +104,7 @@ export default function Home() {
                     />
 
                     <div className="hidden lg:relative lg:block lg:p-12">
-                        <a className="block text-white" href="#">
+                        <Link className="block text-white" href="/">
                             <span className="sr-only">Home</span>
                             <svg
                                 className="h-8 sm:h-10"
@@ -117,18 +117,15 @@ export default function Home() {
                                     fill="currentColor"
                                 />
                             </svg>
-                        </a>
+                        </Link>
 
                         <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                            DUKInnoFest&apos;24
+                            Sign up to DUKInnoFest&apos;24
                         </h2>
 
                         <p className="mt-4 leading-relaxed text-white/90">
                             Welcome to the DUKInnoFest&apos;24 Team Confirmation
-                            Portal! Please confirm your team details by
-                            completing a quick 1-minute questionnaire.
-                            We&apos;re gathering essential information to ensure
-                            a seamless hackathon experience and secure your
+                            Portal! Team leaders please sign up to confirm your
                             participation.
                         </p>
                     </div>
@@ -137,9 +134,9 @@ export default function Home() {
                 <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
                     <div className="max-w-xl lg:max-w-3xl">
                         <div className="relative -mt-16 block lg:hidden">
-                            <a
+                            <Link
                                 className="inline-flex size-16 items-center justify-center rounded-full bg-white text-blue-600 sm:size-20"
-                                href="#"
+                                href="/"
                             >
                                 <span className="sr-only">Home</span>
 
@@ -154,19 +151,24 @@ export default function Home() {
                                         fill="currentColor"
                                     />
                                 </svg>
-                            </a>
+                            </Link>
 
                             <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
-                                DUKInnoFest&apos;24
+                                Sign up to{" "}
+                                <span className="font-normal">DUK</span>
+                                InnoFest&apos;24
                             </h1>
 
                             <p className="mt-4 leading-relaxed text-gray-500">
                                 Welcome to the DUKInnoFest&apos;24 Team
-                                Confirmation Portal! Please confirm your team
-                                details by completing a quick 1-minute
-                                questionnaire. We&apos;re gathering essential
-                                information to ensure a seamless hackathon
-                                experience and secure your participation.
+                                Confirmation Portal! Team leaders please sign up
+                                to confirm your participation.
+                            </p>
+
+                            <p className="mt-4 leading-relaxed text-gray-500">
+                                <span className="font-bold">The flow: </span>
+                                Sign up &rarr; Confirm email &rarr; Login &rarr;
+                                Confirm slot by submitting details
                             </p>
                         </div>
 

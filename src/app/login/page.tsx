@@ -60,7 +60,7 @@ export default function Home() {
                     />
 
                     <div className="hidden lg:relative lg:block lg:p-12">
-                        <a className="block text-white" href="#">
+                        <Link className="block text-white" href="/">
                             <span className="sr-only">Home</span>
                             <svg
                                 className="h-8 sm:h-10"
@@ -73,7 +73,7 @@ export default function Home() {
                                     fill="currentColor"
                                 />
                             </svg>
-                        </a>
+                        </Link>
 
                         <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
                             <span className="font-normal">DUK</span>
@@ -81,7 +81,7 @@ export default function Home() {
                         </h2>
 
                         <p className="mt-4 leading-relaxed text-white/90">
-                            Login to continue
+                            Login to continue (for team leaders)
                         </p>
                     </div>
                 </section>
@@ -89,9 +89,9 @@ export default function Home() {
                 <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
                     <div className="w-full lg:max-w-3xl">
                         <div className="relative -mt-16 block lg:hidden">
-                            <a
+                            <Link
                                 className="inline-flex size-16 items-center justify-center rounded-full bg-white text-blue-600 sm:size-20"
-                                href="#"
+                                href="/"
                             >
                                 <span className="sr-only">Home</span>
 
@@ -106,7 +106,7 @@ export default function Home() {
                                         fill="currentColor"
                                     />
                                 </svg>
-                            </a>
+                            </Link>
 
                             <Link href={"/"}>
                                 <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
@@ -116,13 +116,18 @@ export default function Home() {
                             </Link>
 
                             <p className="mt-4 leading-relaxed text-gray-500">
-                                Login to continue
+                                Login to continue (for team leaders)
+                            </p>
+                            <p className="mt-4 leading-relaxed text-sm text-gray-500">
+                                Please confirm your email before logging in (if
+                                not done). Please check your inbox for a
+                                confirmation email.
                             </p>
                         </div>
 
                         <form
                             onSubmit={handleSignUp}
-                            className="mt-8 grid grid-cols-6 gap-6"
+                            className="mt-2 grid grid-cols-6 gap-6"
                         >
                             <Link
                                 className="text-gray-600 flex items-center space-x-4"
@@ -133,8 +138,11 @@ export default function Home() {
                                     InnoFest&apos;24
                                 </div>
                             </Link>
-                            <div className="col-span-6 font-bold text-xl hidden lg:block">
-                                Login to continue with registration
+                            <div className="col-span-6 text-sm hidden lg:block">
+                                Please confirm your email before logging in (if
+                                not done). <br />
+                                Please check your inbox for a confirmation
+                                email.
                             </div>
                             <div className="col-span-6">
                                 <label
@@ -174,16 +182,24 @@ export default function Home() {
                                 />
                             </div>
 
-                            <div className="col-span-6 sm:flex sm:items-center">
+                            <div className="col-span-6 sm:flex sm:items-center flex flex-col space-y-4">
                                 <Button
                                     className="w-full"
                                     type="submit"
                                     disabled={isLoading}
                                 >
-                                    {isLoading
-                                        ? "Creating Account..."
-                                        : "Login"}
+                                    {isLoading ? "Logging in..." : "Login"}
                                 </Button>
+                                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
+                                    Don&apos;t have an account?{" "}
+                                    <Link
+                                        href="/signup"
+                                        className="text-gray-700 underline"
+                                    >
+                                        Sign up
+                                    </Link>
+                                    .
+                                </p>
                             </div>
                         </form>
                     </div>
