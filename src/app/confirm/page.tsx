@@ -28,6 +28,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { sendConfirmationEmail } from "@/utils/sendEmail";
 
 const genAI = new GoogleGenerativeAI(
     process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
@@ -122,9 +123,14 @@ export default function ConfirmationForm() {
     };
 
     const analyzeImage = async (file: File) => {
+        toast({
+            title: "AI is verifying your group photo",
+            description: "Please wait. It won't take much time.",
+        });
+
         try {
             const model = genAI.getGenerativeModel({
-                model: "gemini-1.5-pro",
+                model: "gemini-1.5-flash",
             });
 
             // Convert the file to a base64 string
@@ -218,15 +224,29 @@ export default function ConfirmationForm() {
 
             if (error) throw error;
 
+            await sendConfirmationEmail({
+                to: user?.email as string,
+                teamName: formData.teamName,
+                theme: formData.theme,
+                problemStatementNumber: formData.problemStatementNumber,
+                problemStatementTitle: formData.problemStatementTitle,
+            });
+
             toast({
                 title: "Registration Successful",
-                description:
-                    "Your team has been registered for the hackathon. Your group photo seems to satisfy the requirements.",
+                description: "Your team has been registered for the hackathon.",
             });
             router.push("/confirm/success");
         } catch (error: any) {
             console.error("Error submitting form:", error);
-            if (
+            if (error.message.includes("Email")) {
+                toast({
+                    title: "Email Sending Failed",
+                    description:
+                        "We couldn't send you a confirmation email, but your registration was successful. Please check your registration details on the dashboard.",
+                    variant: "default",
+                });
+            } else if (
                 error.code === "23505" ||
                 error.message.includes(
                     "duplicate key value violates unique constraint"
