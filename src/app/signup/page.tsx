@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useSession } from "@/context/SessionContext";
 
 export default function Home() {
     const [email, setEmail] = useState("");
@@ -17,21 +18,15 @@ export default function Home() {
     const router = useRouter();
     const { toast } = useToast();
     const supabase = createClient();
+    const { session, loading } = useSession();
 
     useEffect(() => {
-        const checkSession = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-            if (session) {
-                router.push("/confirm");
-            } else {
-                setIsLoading(false);
-            }
-        };
-
-        checkSession();
-    }, [router, supabase.auth]);
+        if (session) {
+            router.push("/");
+        } else {
+            setIsLoading(false);
+        }
+    }, [router, session]);
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -124,9 +119,8 @@ export default function Home() {
                         </h2>
 
                         <p className="mt-4 leading-relaxed text-white/90">
-                            Welcome to the DUKInnoFest&apos;24 Team Confirmation
-                            Portal! Team leaders please sign up to confirm your
-                            participation.
+                            Welcome to the DUKInnoFest&apos;24 Team Portal! Team
+                            leaders please sign up to confirm your slot.
                         </p>
                     </div>
                 </section>
@@ -160,15 +154,9 @@ export default function Home() {
                             </h1>
 
                             <p className="mt-4 leading-relaxed text-gray-500">
-                                Welcome to the DUKInnoFest&apos;24 Team
-                                Confirmation Portal! Team leaders please sign up
-                                to confirm your participation.
-                            </p>
-
-                            <p className="mt-4 leading-relaxed text-gray-500">
-                                <span className="font-bold">The flow: </span>
-                                Sign up &rarr; Confirm email &rarr; Login &rarr;
-                                Confirm slot by submitting details
+                                Welcome to the DUKInnoFest&apos;24 Team Portal!
+                                Team leaders please sign up to confirm your
+                                slot.
                             </p>
                         </div>
 
@@ -176,6 +164,18 @@ export default function Home() {
                             onSubmit={handleSignUp}
                             className="mt-8 grid grid-cols-6 gap-6"
                         >
+                            <Link href={"/"} className="hidden lg:block">
+                                <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
+                                    <span className="font-normal">DUK</span>
+                                    InnoFest&apos;24
+                                </h1>
+                            </Link>
+                            <div className="col-span-6 font-bold text-2xl">
+                                Create your account{" "}
+                                <div className="text-sm">
+                                    (for team leaders)
+                                </div>
+                            </div>
                             <div className="col-span-6">
                                 <label
                                     htmlFor="Email"
@@ -246,15 +246,14 @@ export default function Home() {
                                         id="declaration"
                                         name="accept_declaration"
                                         className="size-5 rounded-md border-gray-200 bg-white shadow-sm"
+                                        required
                                     />
 
                                     <span className="text-sm text-gray-700">
                                         By signing up, I confirm my
-                                        participation in the hackathon and
-                                        acknowledge that I might attract some
-                                        friendly hoodoo from the waiting list
-                                        teams who miss their chance because of
-                                        me.
+                                        participation in the hackathon and is
+                                        ready to be nominated to the national
+                                        level hackathon.
                                     </span>
                                 </label>
                             </div>

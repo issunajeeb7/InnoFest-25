@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { IconSquareRoundedPlus, IconNumber } from "@tabler/icons-react";
-import { LucideIcon } from "lucide-react";
 import { useSession } from "@/context/SessionContext";
 import {
     Sheet,
@@ -17,24 +16,18 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
-type TeamData = {
-    team_name: string;
-    problem_statement_number: number;
-    problem_statement_title: string;
-    group_photo_url: string | null;
-    user_id: string;
-};
-
 type FormattedItem = {
+    id: string | number;
     title: string;
     description: string;
-    header: JSX.Element;
-    icon: React.ReactElement<LucideIcon>;
-    teamId: string;
+    header: React.ReactNode;
+    icon: React.ReactNode;
+    teamId?: string | number;
     ps_number: number;
 };
 
 const confirmButton: FormattedItem = {
+    id: "confirm-button",
     title: "Confirm your team now",
     description: "Book your slot by filling out the confirmation form",
     header: (
@@ -48,10 +41,11 @@ const confirmButton: FormattedItem = {
 };
 
 const Skeleton = () => (
-    <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
+    <div className="flex flex-1 w-full h-full min-h-36 rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100"></div>
 );
 
 const createPlaceholderItem = (index: number): FormattedItem => ({
+    id: "",
     title: `Slot for team ${index}`,
     description: "This slot is yet to be filled",
     header: <Skeleton />,
@@ -63,7 +57,7 @@ const createPlaceholderItem = (index: number): FormattedItem => ({
 export default function Page() {
     const [items, setItems] = useState<FormattedItem[]>([
         confirmButton,
-        ...Array(25)
+        ...Array(36)
             .fill(null)
             .map((_, index) => createPlaceholderItem(index + 1)),
     ]);
@@ -76,7 +70,7 @@ export default function Page() {
                 const { data, error } = await supabase
                     .from("teams")
                     .select(
-                        "team_name, problem_statement_number, problem_statement_title, group_photo_url, user_id"
+                        "id, team_name, problem_statement_number, problem_statement_title, group_photo_url, user_id"
                     );
 
                 if (error) throw error;
@@ -89,6 +83,7 @@ export default function Page() {
 
         const updateItemsWithTeamData = (data: any[]) => {
             const formattedItems: FormattedItem[] = data.map((team) => ({
+                id: team.id,
                 title: team.team_name,
                 description: `Solving: ${team.problem_statement_title}`,
                 header: team.group_photo_url ? (
@@ -97,10 +92,16 @@ export default function Page() {
                         alt={team.team_name}
                         width={100}
                         height={100}
-                        className="w-full h-40 rounded-md object-cover"
+                        className="w-full h-36 rounded-md object-cover"
                     />
                 ) : (
-                    <Skeleton />
+                    <Image
+                        src={"/jeremy-perkins-uhjiu8FjnsQ-unsplash.jpg"}
+                        alt={team.team_name}
+                        width={100}
+                        height={100}
+                        className="w-full h-36 rounded-md object-cover"
+                    />
                 ),
                 icon: <IconNumber className="h-6 w-6 text-neutral-500" />,
                 teamId: team.user_id,
@@ -110,7 +111,7 @@ export default function Page() {
             const updatedItems = [
                 confirmButton,
                 ...formattedItems,
-                ...Array(Math.max(0, 25 - formattedItems.length))
+                ...Array(Math.max(0, 36 - formattedItems.length))
                     .fill(null)
                     .map((_, index) =>
                         createPlaceholderItem(formattedItems.length + index + 1)
@@ -176,9 +177,9 @@ export default function Page() {
                                     <>
                                         <Link
                                             className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
-                                            href="/confirm/success"
+                                            href="/profile"
                                         >
-                                            My details
+                                            My Team
                                         </Link>
                                         <Link
                                             className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
@@ -232,9 +233,9 @@ export default function Page() {
                                                 <>
                                                     <Link
                                                         className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
-                                                        href="/confirm/success"
+                                                        href="/profile"
                                                     >
-                                                        My details
+                                                        My Team
                                                     </Link>
                                                     <Link
                                                         className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
@@ -253,7 +254,7 @@ export default function Page() {
                                                     </Link>
 
                                                     <Link
-                                                        className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-800 transition hover:text-gray-600/75 sm:block"
+                                                        className="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-800 transition hover:text-gray-600/75 sm:block"
                                                         href="/signup"
                                                     >
                                                         Register
@@ -268,30 +269,130 @@ export default function Page() {
                     </div>
                 </div>
             </header>
+            <div className="max-w-4xl px-6 mx-auto pt-12 font-bold text-3xl text-gray-800">
+                Appearing teams
+            </div>
             <BentoGrid className="max-w-4xl mx-auto py-12">
                 {items.map((item, i) =>
                     i === 0 ? (
-                        <Link href={"/signup"} key={i}>
+                        session ? (
+                            <Link href={"/confirm"} key={i}>
+                                <BentoGridItem
+                                    title={item.title}
+                                    description={item.description}
+                                    header={item.header}
+                                    icon={item.icon}
+                                    className="cursor-pointer"
+                                />
+                            </Link>
+                        ) : (
+                            <Link href={"/signup"} key={i}>
+                                <BentoGridItem
+                                    title={item.title}
+                                    description={item.description}
+                                    header={item.header}
+                                    icon={item.icon}
+                                    className="cursor-pointer"
+                                />
+                            </Link>
+                        )
+                    ) : (
+                        <Link href={`/team/${item.id}`} key={i}>
                             <BentoGridItem
+                                key={i}
                                 title={item.title}
                                 description={item.description}
                                 header={item.header}
                                 icon={item.icon}
-                                className="cursor-pointer"
+                                ps_number={item.ps_number}
                             />
                         </Link>
-                    ) : (
-                        <BentoGridItem
-                            key={i}
-                            title={item.title}
-                            description={item.description}
-                            header={item.header}
-                            icon={item.icon}
-                            ps_number={item.ps_number}
-                        />
                     )
                 )}
             </BentoGrid>
+            <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+                <div className="mx-auto max-w-3xl text-center">
+                    <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                        About the Organizers
+                    </h2>
+
+                    <p className="mt-4 text-gray-500 sm:text-xl">
+                        DUK<span className="font-bold">InnoFest</span>&apos;24
+                        is a collaborative effort by Digital University Kerala,
+                        Institution&apos;s Innovation Council - DUK and the
+                        Innovation Club of DUK. This screening event aims to
+                        identify and nurture talented innovators who will go on
+                        to represent our institution at the prestigious
+                        national-level Smart India Hackathon.
+                    </p>
+                </div>
+
+                <dl className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
+                        <dt className="order-last text-lg font-medium text-gray-500">
+                            Digital University Kerala
+                        </dt>
+
+                        <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
+                            <Image
+                                src={"/DUK Logo.png"}
+                                alt="Organizer Logo"
+                                width={100}
+                                height={100}
+                                className=""
+                            ></Image>
+                        </dd>
+                    </div>
+
+                    <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
+                        <dt className="order-last text-lg font-medium text-gray-500">
+                            IIC DUK
+                        </dt>
+
+                        <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
+                            <Image
+                                src={"/PngItem_2459619.png"}
+                                alt="Organizer Logo"
+                                width={100}
+                                height={100}
+                                className=""
+                            ></Image>
+                        </dd>
+                    </div>
+
+                    <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
+                        <dt className="order-last text-lg font-medium text-gray-500">
+                            Innovation Club DUK
+                        </dt>
+
+                        <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
+                            <Image
+                                src={"/IC Logo.png"}
+                                alt="Organizer Logo"
+                                width={100}
+                                height={100}
+                                className=""
+                            ></Image>
+                        </dd>
+                    </div>
+
+                    <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
+                        <dt className="order-last text-lg font-medium text-gray-500">
+                            Smart India Hackathon 2024
+                        </dt>
+
+                        <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
+                            <Image
+                                src={"/SIH_logo_2024_horizontal.png"}
+                                alt="Organizer Logo"
+                                width={100}
+                                height={100}
+                                className=""
+                            ></Image>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
         </main>
     );
 }

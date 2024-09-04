@@ -5,7 +5,6 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import {
     Card,
     CardContent,
@@ -21,28 +20,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-import html2canvas from "html2canvas";
-import {
-    FacebookShareButton,
-    TwitterShareButton,
-    LinkedinShareButton,
-    WhatsappShareButton,
-    FacebookIcon,
-    TwitterIcon,
-    LinkedinIcon,
-    WhatsappIcon,
-} from "react-share";
-import { saveAs } from "file-saver";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
     Sheet,
     SheetContent,
     SheetDescription,
@@ -51,48 +28,23 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { useSession } from "@/context/SessionContext";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
-export default function RegistrationSuccess() {
+export default function TeamDetails({ params }) {
     const [teamData, setTeamData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-    const [imageGenerationError, setImageGenerationError] = useState(null);
     const router = useRouter();
+    const [error, setError] = useState(null);
     const supabase = createClient();
-    const dialogContentRef = useRef(null);
     const { session, loading } = useSession();
-
-    const generateShareableImage = async () => {
-        if (dialogContentRef.current) {
-            setIsGeneratingImage(true);
-            setImageGenerationError(null);
-            try {
-                const canvas = await html2canvas(dialogContentRef.current);
-                canvas.toBlob((blob) => {
-                    saveAs(blob, "team-photo.png");
-                });
-            } catch (error) {
-                console.error("Error generating image:", error);
-                setImageGenerationError(
-                    "Failed to generate shareable image. Please try again."
-                );
-            } finally {
-                setIsGeneratingImage(false);
-            }
-        }
-    };
 
     useEffect(() => {
         async function fetchTeamData() {
-            if (loading) return;
-
             if (!session) {
-                router.push("/login");
-                return;
+                router.push("/");
+                return false;
             }
-
-            setIsLoading(true);
 
             const { data, error } = await supabase
                 .from("teams")
@@ -112,11 +64,9 @@ export default function RegistrationSuccess() {
         }
 
         fetchTeamData();
-    }, [session, loading, router, supabase]);
+    }, [params.slug, supabase, router, session]);
 
-    if (loading || isLoading) return <div>Loading...</div>;
-    if (!session) return <div>Please log in to view this page</div>;
-
+    if (isLoading) return <div>Loading team details...</div>;
     if (error)
         return (
             <div className="mx-auto flex max-w-screen-xl justify-center lg:h-screen py-12 items-center gap-8 px-4 sm:px-6 lg:px-8">
@@ -143,13 +93,7 @@ export default function RegistrationSuccess() {
                 </Card>
             </div>
         );
-
     if (!teamData) return <div>No team data found</div>;
-
-    const shareUrl = "https://innofest.vercel.app/";
-
-    const shareTitle = `Check out our team: ${teamData.team_name}`;
-    const shareDescription = `We're working on ${teamData.problem_statement_title} for the theme: ${teamData.theme}. Wish us luck!`;
 
     return (
         <section>
@@ -190,14 +134,24 @@ export default function RegistrationSuccess() {
                                 >
                                     Home
                                 </Link>
-                                <Link
-                                    className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
-                                    href="/logout"
-                                >
-                                    Logout
-                                </Link>
+                                {session ? (
+                                    <Link
+                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                        href="/logout"
+                                    >
+                                        Logout
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                        href="/login"
+                                    >
+                                        Login
+                                    </Link>
+                                )}
                             </div>
 
+                            {/* Mobile menu */}
                             <Sheet>
                                 <SheetTrigger className="md:hidden">
                                     <span className="sr-only">Toggle menu</span>
@@ -220,21 +174,19 @@ export default function RegistrationSuccess() {
                                     <SheetHeader>
                                         <SheetTitle>Menu</SheetTitle>
                                         <SheetDescription className="flex flex-col space-y-4">
+                                            <Link
+                                                className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
+                                                href="/"
+                                            >
+                                                Home
+                                            </Link>
                                             {session ? (
-                                                <>
-                                                    <Link
-                                                        className="block rounded-md border-2 border-gray-800 px-5 py-2.5 text-sm font-medium text-black transition hover:border-gray-700"
-                                                        href="/"
-                                                    >
-                                                        Home
-                                                    </Link>
-                                                    <Link
-                                                        className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
-                                                        href="/logout"
-                                                    >
-                                                        Logout
-                                                    </Link>
-                                                </>
+                                                <Link
+                                                    className="block rounded-md bg-gray-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-700"
+                                                    href="/logout"
+                                                >
+                                                    Logout
+                                                </Link>
                                             ) : (
                                                 <>
                                                     <Link
@@ -243,9 +195,8 @@ export default function RegistrationSuccess() {
                                                     >
                                                         Login
                                                     </Link>
-
                                                     <Link
-                                                        className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-800 transition hover:text-gray-600/75 sm:block"
+                                                        className="block rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-800 transition hover:text-gray-600/75"
                                                         href="/signup"
                                                     >
                                                         Register
@@ -260,146 +211,23 @@ export default function RegistrationSuccess() {
                     </div>
                 </div>
             </header>
-            <section className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
+            <section className="mx-auto flex max-w-screen-xl justify-center py-12 items-center gap-8 px-4 sm:px-6 lg:px-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>
-                            Congratulations! Your team is registered for
-                            InnoFest&apos;24 ✅
-                        </CardTitle>
+                        <CardTitle>Team {teamData.team_name}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Table>
-                            <TableCaption>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button>Share your team photo</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>
-                                                Share your group photo
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                Generate a shareable image of
-                                                your team photo and details.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div
-                                            className="p-4 shadow-lg"
-                                            ref={dialogContentRef}
-                                        >
-                                            {teamData.group_photo_url ? (
-                                                <div className="w-full">
-                                                    <AspectRatio ratio={16 / 9}>
-                                                        <Image
-                                                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`}
-                                                            alt="Group Photo"
-                                                            width={600}
-                                                            height={600}
-                                                            className="rounded-lg object-cover"
-                                                        />
-                                                    </AspectRatio>
-                                                </div>
-                                            ) : (
-                                                <p>No group photo uploaded</p>
-                                            )}
-                                            <div className="mt-4">
-                                                <h3 className="font-semibold">
-                                                    {teamData.team_name}
-                                                </h3>
-                                                <p>
-                                                    <b>Theme: </b>
-                                                    {teamData.theme}
-                                                </p>
-                                                <p>
-                                                    <b>Problem: </b>
-                                                    {
-                                                        teamData.problem_statement_title
-                                                    }
-                                                </p>
-                                                <div className="mt-4">
-                                                    <i className="text-orange-500">
-                                                        I am a proud InnoFest
-                                                        Participant
-                                                    </i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="mt-8 space-x-4">
-                                            <Button
-                                                onClick={generateShareableImage}
-                                                disabled={isGeneratingImage}
-                                            >
-                                                {isGeneratingImage
-                                                    ? "Generating..."
-                                                    : "Download Shareable Image"}
-                                            </Button>
-                                        </div>
-                                        {imageGenerationError && (
-                                            <Alert variant="destructive">
-                                                <AlertDescription>
-                                                    {imageGenerationError}
-                                                </AlertDescription>
-                                            </Alert>
-                                        )}
-                                        {shareUrl && (
-                                            <div className="mt-4 flex space-x-4">
-                                                <FacebookShareButton
-                                                    url={shareUrl}
-                                                    quote={shareDescription}
-                                                >
-                                                    <FacebookIcon
-                                                        size={32}
-                                                        round
-                                                    />
-                                                </FacebookShareButton>
-                                                <TwitterShareButton
-                                                    url={shareUrl}
-                                                    title={shareTitle}
-                                                >
-                                                    <TwitterIcon
-                                                        size={32}
-                                                        round
-                                                    />
-                                                </TwitterShareButton>
-                                                <LinkedinShareButton
-                                                    url={shareUrl}
-                                                    title={shareTitle}
-                                                    summary={shareDescription}
-                                                >
-                                                    <LinkedinIcon
-                                                        size={32}
-                                                        round
-                                                    />
-                                                </LinkedinShareButton>
-                                                <WhatsappShareButton
-                                                    url={shareUrl}
-                                                    title={shareTitle}
-                                                >
-                                                    <WhatsappIcon
-                                                        size={32}
-                                                        round
-                                                    />
-                                                </WhatsappShareButton>
-                                            </div>
-                                        )}
-                                    </DialogContent>
-                                </Dialog>
-                            </TableCaption>
+                            <TableCaption></TableCaption>
                             <TableBody>
                                 <TableRow>
-                                    <TableCell className="font-medium">
-                                        Team Name
+                                    <TableCell className="font-bold">
+                                        Theme
                                     </TableCell>
-                                    <TableCell>{teamData.team_name}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Theme</TableCell>
                                     <TableCell>{teamData.theme}</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell>
+                                    <TableCell className="font-bold">
                                         Problem Statement Number
                                     </TableCell>
                                     <TableCell>
@@ -407,7 +235,7 @@ export default function RegistrationSuccess() {
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell>
+                                    <TableCell className="font-bold">
                                         Problem Statement Title
                                     </TableCell>
                                     <TableCell>
@@ -438,6 +266,17 @@ export default function RegistrationSuccess() {
                                 </TableRow>
                             </TableBody>
                         </Table>
+                        {teamData.group_photo_url ? (
+                            <Image
+                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`}
+                                alt="Group Photo"
+                                width={600}
+                                height={600}
+                                className="w-full rounded-lg object-cover"
+                            ></Image>
+                        ) : (
+                            <Label>No group photo uploaded</Label>
+                        )}
                     </CardContent>
                 </Card>
             </section>

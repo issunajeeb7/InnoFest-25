@@ -34,7 +34,7 @@ export default function Home() {
                 title: "Login Successful",
                 description: "Please continue with your team confirmation.",
             });
-            router.push("/confirm");
+            router.push("/");
         } catch (error: any) {
             console.error("Error during login:", error);
             toast({
@@ -118,11 +118,6 @@ export default function Home() {
                             <p className="mt-4 leading-relaxed text-gray-500">
                                 Login to continue (for team leaders)
                             </p>
-                            <p className="mt-4 leading-relaxed text-sm text-gray-500">
-                                Please confirm your email before logging in (if
-                                not done). Please check your inbox for a
-                                confirmation email.
-                            </p>
                         </div>
 
                         <form
@@ -141,8 +136,10 @@ export default function Home() {
                             <div className="col-span-6 text-sm hidden lg:block">
                                 Please confirm your email before logging in (if
                                 not done). <br />
-                                Please check your inbox for a confirmation
-                                email.
+                                <span className="text-orange-500">
+                                    Please check your inbox for a confirmation
+                                    email.
+                                </span>
                             </div>
                             <div className="col-span-6">
                                 <label

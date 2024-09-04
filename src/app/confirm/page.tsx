@@ -171,28 +171,28 @@ export default function ConfirmationForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-
         try {
-            if (!formData.groupPhoto) {
-                throw new Error("No group photo selected");
+            let imageAnalysis;
+            if (formData.groupPhoto) {
+                imageAnalysis = await analyzeImage(formData.groupPhoto);
+                if (
+                    imageAnalysis.peopleCount <= 2 ||
+                    !imageAnalysis.hasFemale
+                ) {
+                    toast({
+                        title: "Invalid Group Photo",
+                        description:
+                            imageAnalysis.peopleCount <= 2
+                                ? "The image you uploaded doesn't seem to be a group photo."
+                                : "Your group must include at least one female member.",
+                        variant: "destructive",
+                    });
+                    setIsSubmitting(false);
+                    return;
+                }
             }
 
-            const imageAnalysis = await analyzeImage(formData.groupPhoto);
-
-            if (imageAnalysis.peopleCount <= 2 || !imageAnalysis.hasFemale) {
-                toast({
-                    title: "Invalid Group Photo",
-                    description:
-                        imageAnalysis.peopleCount <= 2
-                            ? "The image you uploaded doesn't seem to be a group photo."
-                            : "Your group must include at least one female member.",
-                    variant: "destructive",
-                });
-                setIsSubmitting(false);
-                return;
-            }
-
-            // Upload group photo
+            // Upload group photo if provided
             let photoUrl = "";
             if (formData.groupPhoto) {
                 const { data, error } = await supabase.storage
@@ -205,21 +205,28 @@ export default function ConfirmationForm() {
                 photoUrl = data.path;
             }
 
-            // Submit team data
-            const { error } = await supabase.from("teams").insert([
-                {
-                    team_name: formData.teamName,
-                    theme: formData.theme,
-                    problem_statement_number: formData.problemStatementNumber,
-                    problem_statement_title: formData.problemStatementTitle,
+            // Prepare team data, including optional fields
+            const teamData = {
+                team_name: formData.teamName,
+                theme: formData.theme,
+                problem_statement_number: formData.problemStatementNumber,
+                problem_statement_title: formData.problemStatementTitle,
+                user_id: user?.id,
+                // Include optional fields only if they have values
+                ...(formData.vegetarianCount !== undefined && {
                     vegetarian_count: formData.vegetarianCount,
+                }),
+                ...(formData.resources && {
                     resources_required: formData.resources,
+                }),
+                ...(formData.dayScholarCount !== undefined && {
                     day_scholar_count: formData.dayScholarCount,
-                    group_photo_url: photoUrl,
-                    user_id: user?.id,
-                },
-            ]);
+                }),
+                ...(photoUrl && { group_photo_url: photoUrl }),
+            };
 
+            // Submit team data
+            const { error } = await supabase.from("teams").insert([teamData]);
             if (error) throw error;
 
             await sendConfirmationEmail({
@@ -241,7 +248,7 @@ export default function ConfirmationForm() {
                 toast({
                     title: "Email Sending Failed",
                     description:
-                        "We couldn't send you a confirmation email, but your registration was successful. Please check your registration details on the dashboard.",
+                        "We couldn't send you a confirmation email, but your submission was successful. Please check your registration details on the dashboard.",
                     variant: "default",
                 });
             } else if (
@@ -412,55 +419,22 @@ export default function ConfirmationForm() {
                             className="bg-gray-50 border-gray-200 mt-12"
                         >
                             <AlertTitle className="text-2xl font-bold text-gray-800 mb-4">
-                                Important Notice: Hackathon Submission
+                                Congratulations, {name}!
                             </AlertTitle>
                             <AlertDescription>
                                 <p className="text-gray-700 mb-4">
                                     Dear {name},
                                 </p>
                                 <p className="text-gray-700 mb-4">
-                                    We&apos;re excited about your interest in
-                                    the hackathon! Before you submit your form,
-                                    please take a moment to review these
-                                    important points:
-                                </p>
-                                <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
-                                    <li>
-                                        <strong>
-                                            Double-check your entries:
-                                        </strong>{" "}
-                                        Please ensure all information is
-                                        accurate, as you won&apos;t be able to
-                                        edit the form after submission.
-                                    </li>
-                                    <li>
-                                        <strong>
-                                            Commitment to participate:
-                                        </strong>{" "}
-                                        By submitting this form, you&apos;re
-                                        confirming your commitment to
-                                        participate in the hackathon and, if
-                                        selected, to proceed to the national
-                                        level competition.
-                                    </li>
-                                    <li>
-                                        <strong>
-                                            Limited spots available:
-                                        </strong>{" "}
-                                        We have only 25 slots available for this
-                                        exciting opportunity. To make the most
-                                        of these spots, we kindly ask that you
-                                        submit only if you&apos;re fully
-                                        committed to participating.
-                                    </li>
-                                </ul>
-                                <p className="text-gray-700 mb-4">
-                                    Thank you for your understanding and
-                                    enthusiasm. We look forward to seeing your
-                                    innovative ideas at the hackathon!
-                                </p>
-                                <p className="text-gray-700 font-semibold">
-                                    Best of luck!
+                                    You&apos;ve taken the first step towards an
+                                    amazing hackathon experience. Your
+                                    creativity and determination will shine
+                                    bright! Remember, every great innovation
+                                    starts with a single idea. Embrace the
+                                    challenges, learn from each other, and most
+                                    importantly, have fun! We can&apos;t wait to
+                                    see what incredible solutions you&apos;ll
+                                    come up with. Good luck and happy hacking!
                                 </p>
                             </AlertDescription>
                         </Alert>
@@ -489,7 +463,7 @@ export default function ConfirmationForm() {
                 <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
                     <div className="max-w-xl lg:max-w-3xl">
                         <h1 className="mt-6 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
-                            🤩 Confirm your team
+                            🤩 Add your team profile
                         </h1>
 
                         <p className="mt-4 leading-relaxed text-gray-500">
@@ -502,8 +476,16 @@ export default function ConfirmationForm() {
                             onSubmit={handleSubmit}
                             className="flex flex-col space-y-4 py-12 max-w-2xl mx-auto"
                         >
+                            <p className="text-xs">
+                                Fields marked with{" "}
+                                <span className="text-red-500">*</span> are
+                                required
+                            </p>
                             <div className="space-y-2">
-                                <Label htmlFor="teamName">Team Name</Label>
+                                <Label htmlFor="teamName">
+                                    Team Name{" "}
+                                    <span className="text-red-500">*</span>
+                                </Label>
                                 <Input
                                     id="teamName"
                                     name="teamName"
@@ -515,7 +497,10 @@ export default function ConfirmationForm() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="theme">Hackathon Theme</Label>
+                                <Label htmlFor="theme">
+                                    Hackathon Theme{" "}
+                                    <span className="text-red-500">*</span>
+                                </Label>
                                 <Select
                                     onValueChange={handleSelectChange}
                                     required
@@ -541,7 +526,8 @@ export default function ConfirmationForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="problemStatementNumber">
-                                    Problem Statement Number
+                                    Problem Statement Number{" "}
+                                    <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="problemStatementNumber"
@@ -568,7 +554,8 @@ export default function ConfirmationForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="problemStatementTitle">
-                                    Problem Statement Title
+                                    Problem Statement Title{" "}
+                                    <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="problemStatementTitle"
@@ -591,7 +578,6 @@ export default function ConfirmationForm() {
                                     value={formData.vegetarianCount}
                                     onChange={handleInputChange}
                                     placeholder="0"
-                                    required
                                     min="0"
                                     max="6"
                                 />
@@ -621,7 +607,6 @@ export default function ConfirmationForm() {
                                     value={formData.dayScholarCount}
                                     onChange={handleInputChange}
                                     placeholder="0"
-                                    required
                                     min="0"
                                     max="6"
                                 />
@@ -634,7 +619,6 @@ export default function ConfirmationForm() {
                                     type="file"
                                     onChange={handleFileChange}
                                     accept="image/*"
-                                    required
                                 />
                             </div>
 
