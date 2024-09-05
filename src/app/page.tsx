@@ -269,10 +269,10 @@ export default function Page() {
                     </div>
                 </div>
             </header>
-            <div className="max-w-4xl px-6 mx-auto pt-12 font-bold text-3xl text-gray-800">
+            <div className="max-w-4xl px-6 lg:px-0 mx-auto pt-12 font-bold text-3xl text-gray-800">
                 Appearing teams
             </div>
-            <BentoGrid className="max-w-4xl mx-auto py-12">
+            <BentoGrid className="max-w-4xl mx-auto py-12 px-4 lg:px-0">
                 {items.map((item, i) =>
                     i === 0 ? (
                         session ? (

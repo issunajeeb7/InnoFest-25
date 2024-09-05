@@ -218,13 +218,15 @@ export default function TeamDetails({ params }) {
                             </TableBody>
                         </Table>
                         {teamData.group_photo_url ? (
-                            <Image
-                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`}
-                                alt="Group Photo"
-                                width={600}
-                                height={600}
-                                className="w-full rounded-lg object-cover"
-                            ></Image>
+                            <AspectRatio ratio={16 / 9}>
+                                <Image
+                                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`}
+                                    alt="Group Photo"
+                                    width={600}
+                                    height={600}
+                                    className="w-full h-full rounded-lg object-cover"
+                                ></Image>
+                            </AspectRatio>
                         ) : (
                             <Label>No group photo uploaded</Label>
                         )}
