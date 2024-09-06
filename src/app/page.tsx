@@ -15,6 +15,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
 
 type FormattedItem = {
     id: string | number;
@@ -330,7 +331,7 @@ export default function Page() {
                 <dl className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
-                            Digital University Kerala
+                            <Label>Digital University Kerala</Label>
                         </dt>
 
                         <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
@@ -346,7 +347,7 @@ export default function Page() {
 
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
-                            IIC DUK
+                            <Label>IIC DUK</Label>
                         </dt>
 
                         <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
@@ -362,7 +363,7 @@ export default function Page() {
 
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
-                            Innovation Club DUK
+                            <Label>Innovation Club DUK</Label>
                         </dt>
 
                         <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
@@ -378,7 +379,7 @@ export default function Page() {
 
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
-                            Smart India Hackathon 2024
+                            <Label>Smart India Hackathon 2024</Label>
                         </dt>
 
                         <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
