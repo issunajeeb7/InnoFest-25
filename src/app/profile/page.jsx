@@ -26,6 +26,8 @@ import Header from "@/components/Header";
 import { createAvatar } from "@dicebear/core";
 import { lorelei } from "@dicebear/collection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TeamDetails({ params }) {
     const [teamData, setTeamData] = useState(null);
@@ -35,6 +37,9 @@ export default function TeamDetails({ params }) {
     const [error, setError] = useState(null);
     const supabase = createClient();
     const { session, loading } = useSession();
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const { toast } = useToast();
 
     const fetchTeamMembers = useCallback(
         async (teamId) => {
@@ -89,6 +94,85 @@ export default function TeamDetails({ params }) {
             size: 128,
         });
         return avatar.toDataUri();
+    };
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            // Check for file size
+            if (selectedFile.size > 15 * 1024 * 1024) {
+                // 15MB limit
+                toast({
+                    title: "File too large",
+                    description: "Maximum file size is 15MB",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            // Check for valid file types: PDF or PowerPoint (ppt or pptx)
+            const validFileTypes = [
+                "application/pdf", // PDF
+                "application/vnd.ms-powerpoint", // PPT
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation", // PPTX
+            ];
+
+            if (!validFileTypes.includes(selectedFile.type)) {
+                toast({
+                    title: "Invalid file type",
+                    description: "Please upload a PDF or PowerPoint file",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            setFile(selectedFile); // Set the file if valid
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!file || !teamData) return;
+
+        setUploading(true);
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${teamData.id}${Date.now()}_presentation.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from("presentation")
+            .upload(fileName, file);
+
+        if (uploadError) {
+            toast({
+                title: "Upload failed",
+                description: "There was an error uploading your file",
+                variant: "destructive",
+            });
+            setUploading(false);
+            return;
+        }
+
+        const { error: updateError } = await supabase
+            .from("teams")
+            .update({ presentation: fileName })
+            .eq("id", teamData.id);
+
+        if (updateError) {
+            toast({
+                title: "Update failed",
+                description:
+                    "There was an error updating your team information",
+                variant: "destructive",
+            });
+        } else {
+            toast({
+                title: "Upload successful",
+                description: "Your presentation has been uploaded",
+            });
+            setTeamData({ ...teamData, presentation: fileName });
+        }
+
+        setUploading(false);
+        setFile(null);
     };
 
     if (loading || isLoading) return <div>Loading team details...</div>;
@@ -234,6 +318,47 @@ export default function TeamDetails({ params }) {
                             ))}
                         </div>
                     </CardContent>
+                </Card>
+                <Card className="max-w-2xl w-full">
+                    <CardHeader>
+                        <CardTitle>Team Presentation</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {teamData.presentation ? (
+                            <div>
+                                <p>
+                                    Current presentation:{" "}
+                                    {teamData.presentation}
+                                </p>
+                                <p>
+                                    Upload a new presentation to replace the
+                                    current one:
+                                </p>
+                            </div>
+                        ) : (
+                            <p>
+                                No presentation uploaded yet. Upload your team
+                                presentation:
+                            </p>
+                        )}
+                        <Input
+                            type="file"
+                            onChange={handleFileChange}
+                            accept=".pdf,.ppt,.pptx"
+                            className="mt-2"
+                        />
+                        {file && (
+                            <p className="mt-2">Selected file: {file.name}</p>
+                        )}
+                    </CardContent>
+                    <CardFooter className="justify-end">
+                        <Button
+                            onClick={handleUpload}
+                            disabled={!file || uploading}
+                        >
+                            {uploading ? "Uploading..." : "Upload Presentation"}
+                        </Button>
+                    </CardFooter>
                 </Card>
             </section>
         </section>
