@@ -223,6 +223,14 @@ export default function TeamDetails({ params }) {
                             <TableBody>
                                 <TableRow>
                                     <TableCell className="font-bold">
+                                        Room allotted
+                                    </TableCell>
+                                    <TableCell>
+                                        {teamData.room_allotted}
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell className="font-bold">
                                         Theme
                                     </TableCell>
                                     <TableCell>{teamData.theme}</TableCell>
