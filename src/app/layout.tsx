@@ -47,7 +47,7 @@ export default function RootLayout({
             <SessionProvider>
                 <body
                     className={cn(
-                        "min-h-screen bg-background font-sans antialiased",
+                        "min-h-screen bg-background text-black font-sans antialiased",
                         fontSans.variable
                     )}
                 >
