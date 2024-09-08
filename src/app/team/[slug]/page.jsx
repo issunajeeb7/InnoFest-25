@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -30,14 +30,35 @@ import {
 } from "@/components/ui/sheet";
 import { useSession } from "@/context/SessionContext";
 import { Label } from "@/components/ui/label";
+import { createAvatar } from "@dicebear/core";
+import { lorelei } from "@dicebear/collection";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TeamDetails({ params }) {
     const [teamData, setTeamData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [members, setMembers] = useState([]);
     const router = useRouter();
     const supabase = createClient();
     const { session, loading } = useSession();
+
+    const fetchTeamMembers = useCallback(
+        async (teamId) => {
+            const { data, error } = await supabase
+                .from("team_members")
+                .select("*")
+                .eq("team_id", teamId);
+
+            if (error) {
+                console.error("Error fetching team members:", error);
+                setError("Failed to fetch team members");
+            } else {
+                setMembers(data || []);
+            }
+        },
+        [supabase]
+    );
 
     useEffect(() => {
         async function fetchTeamData() {
@@ -55,6 +76,7 @@ export default function TeamDetails({ params }) {
                 setError("Failed to fetch team data");
             } else if (data) {
                 setTeamData(data);
+                fetchTeamMembers(data.id);
             } else {
                 setError("No team data found");
             }
@@ -62,7 +84,15 @@ export default function TeamDetails({ params }) {
         }
 
         fetchTeamData();
-    }, [params.slug, supabase]);
+    }, [params.slug, supabase, fetchTeamMembers]);
+
+    const generateAvatar = (name) => {
+        const avatar = createAvatar(lorelei, {
+            seed: name,
+            size: 128,
+        });
+        return avatar.toDataUri();
+    };
 
     if (isLoading) return <div>Loading team details...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -184,10 +214,10 @@ export default function TeamDetails({ params }) {
                     </div>
                 </div>
             </header>
-            <section className="mx-auto flex max-w-screen-xl justify-center py-12 items-center gap-8 px-4 sm:px-6 lg:px-8">
-                <Card>
+            <section className="mx-auto flex flex-col lg:flex-row max-w-screen-xl justify-center py-12 items-center gap-8 px-4 sm:px-6 lg:px-8">
+                <Card className="max-w-2xl w-full">
                     <CardHeader>
-                        <CardTitle>Team {teamData.team_name}</CardTitle>
+                        <CardTitle>{teamData.team_name}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -230,6 +260,51 @@ export default function TeamDetails({ params }) {
                         ) : (
                             <Label>No group photo uploaded</Label>
                         )}
+                    </CardContent>
+                </Card>
+                <Card className="max-w-2xl w-full">
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            {members.length === 0 ? (
+                                <Label>Team member details not added</Label>
+                            ) : (
+                                <CardTitle>Members</CardTitle>
+                            )}
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {members.map((member, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg"
+                                >
+                                    <Avatar>
+                                        <AvatarImage
+                                            src={generateAvatar(
+                                                member.full_name
+                                            )}
+                                            alt={member.full_name}
+                                        />
+                                        <AvatarFallback>
+                                            {member.full_name
+                                                .split(" ")
+                                                .map((n) => n[0])
+                                                .join("")
+                                                .toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <Label className="text-sm font-medium truncate">
+                                        {member.full_name}
+                                        <span className="text-xs">
+                                            {member.is_leader
+                                                ? " (Team Lead)"
+                                                : ""}
+                                        </span>
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
             </section>

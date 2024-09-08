@@ -29,8 +29,9 @@ type FormattedItem = {
 
 const confirmButton: FormattedItem = {
     id: "confirm-button",
-    title: "Confirm your team now",
-    description: "Book your slot by filling out the confirmation form",
+    title: "Add your team now",
+    description:
+        "Click here to add your team details and showcase them on our main page",
     header: (
         <div className="w-full h-36 bg-blue-200 flex items-center justify-center rounded-xl">
             <IconSquareRoundedPlus size={48} />
