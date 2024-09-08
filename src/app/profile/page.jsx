@@ -26,8 +26,8 @@ import Header from "@/components/Header";
 import { createAvatar } from "@dicebear/core";
 import { lorelei } from "@dicebear/collection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { FileUpload } from "@/components/ui/file-upload";
 
 export default function TeamDetails({ params }) {
     const [teamData, setTeamData] = useState(null);
@@ -96,11 +96,11 @@ export default function TeamDetails({ params }) {
         return avatar.toDataUri();
     };
 
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
+    const handleFileChange = (file) => {
+        setFile(file);
+        if (file) {
             // Check for file size
-            if (selectedFile.size > 15 * 1024 * 1024) {
+            if (file[0].size > 15 * 1024 * 1024) {
                 // 15MB limit
                 toast({
                     title: "File too large",
@@ -117,7 +117,7 @@ export default function TeamDetails({ params }) {
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation", // PPTX
             ];
 
-            if (!validFileTypes.includes(selectedFile.type)) {
+            if (!validFileTypes.includes(file[0].type)) {
                 toast({
                     title: "Invalid file type",
                     description: "Please upload a PDF or PowerPoint file",
@@ -126,7 +126,7 @@ export default function TeamDetails({ params }) {
                 return;
             }
 
-            setFile(selectedFile); // Set the file if valid
+            setFile(file[0]); // Set the file if valid
         }
     };
 
@@ -328,25 +328,26 @@ export default function TeamDetails({ params }) {
                             <div>
                                 <p>
                                     Current presentation:{" "}
-                                    {teamData.presentation}
+                                    <Link
+                                        className="text-blue-500"
+                                        href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/presentation/${teamData.presentation}`}
+                                        target="_blank"
+                                    >
+                                        link
+                                    </Link>
                                 </p>
                                 <p>
                                     Upload a new presentation to replace the
-                                    current one:
+                                    current one
                                 </p>
                             </div>
                         ) : (
-                            <p>
-                                No presentation uploaded yet. Upload your team
-                                presentation:
-                            </p>
+                            <p>No presentation uploaded yet.</p>
                         )}
-                        <Input
-                            type="file"
-                            onChange={handleFileChange}
-                            accept=".pdf,.ppt,.pptx"
-                            className="mt-2"
-                        />
+
+                        <div className="w-full max-w-4xl mx-auto min-h-96 mt-4 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+                            <FileUpload onChange={handleFileChange} />
+                        </div>
                         {file && (
                             <p className="mt-2">Selected file: {file.name}</p>
                         )}
