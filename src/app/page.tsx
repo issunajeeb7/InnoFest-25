@@ -92,8 +92,8 @@ export default function Page() {
                     <Image
                         src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${team.group_photo_url}`}
                         alt={team.team_name}
-                        width={100}
-                        height={100}
+                        width={200}
+                        height={200}
                         className="w-full h-36 rounded-md object-cover"
                     />
                 ) : (
@@ -272,7 +272,7 @@ export default function Page() {
                 </div>
             </header>
             <div className="max-w-4xl px-6 lg:px-0 mx-auto pt-12 font-bold text-3xl text-gray-800">
-                Appearing teams
+                Smart India Internal Hackathon Teams
             </div>
             <BentoGrid className="max-w-4xl mx-auto py-12 px-4 lg:px-0">
                 {items.map((item, i) =>
@@ -371,8 +371,8 @@ export default function Page() {
                             <Image
                                 src={"/IC Logo.png"}
                                 alt="Organizer Logo"
-                                width={100}
-                                height={100}
+                                width={80}
+                                height={80}
                                 className=""
                             ></Image>
                         </dd>
