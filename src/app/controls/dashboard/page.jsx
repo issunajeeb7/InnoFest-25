@@ -231,7 +231,11 @@ export default function Dashboard() {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>Settings</DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Link href={"/controls/dashboard/settings"}>
+                                    Settings
+                                </Link>{" "}
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
                                 <Link href={"/logout"}>Logout</Link>

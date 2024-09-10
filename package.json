@@ -36,6 +36,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "react-share": "^5.1.0",
+    "simplex-noise": "^4.0.3",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"
   },
