@@ -135,7 +135,9 @@ export default function TeamDetails({ params }) {
 
         setUploading(true);
         const fileExt = file.name.split(".").pop();
-        const fileName = `${teamData.id}${Date.now()}_presentation.${fileExt}`;
+        const fileName = `${
+            teamData.team_name
+        }${Date.now()}_presentation.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
             .from("presentation")
