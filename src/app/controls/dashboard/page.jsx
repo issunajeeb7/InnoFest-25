@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import {
-    ArrowUpRight,
     CircleUser,
     Menu,
     Package2,
@@ -15,7 +14,6 @@ import {
     Presentation,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +50,7 @@ import {
 } from "@/components/ui/select";
 import { notifyRoomAllocation } from "@/utils/notifyRoomAllocation";
 import { useSession } from "@/context/SessionContext";
+import CopyableText from "@/components/CopyableText";
 
 export default function Dashboard() {
     const [teams, setTeams] = useState([]);
@@ -67,7 +66,9 @@ export default function Dashboard() {
             try {
                 const { data, error } = await supabase
                     .from("teams")
-                    .select("*")
+                    .select(
+                        "id, team_leader_id, team_name, theme, problem_statement_number, problem_statement_title, vegetarian_count, resources_required, day_scholar_count, room_allotted, presentation, allowed_users(email, name), team_members(full_name, email, gender)"
+                    )
                     .order("team_name");
 
                 if (error) throw error;
@@ -116,6 +117,16 @@ export default function Dashboard() {
             subscription.unsubscribe();
         };
     }, [supabase]);
+
+    const teamsWithFemaleCount = teams.map((team) => {
+        const femaleCount = team.team_members.filter(
+            (member) => member.gender === "Female"
+        ).length;
+        return {
+            ...team,
+            femaleCount,
+        };
+    });
 
     const handleRoomAllocation = async (selectedRoom, leaderId) => {
         try {
@@ -307,7 +318,7 @@ export default function Dashboard() {
                                 {presentationCount}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                teams submitted their presentation so far
+                                out of {teams.length} presentation so far
                             </p>
                         </CardContent>
                     </Card>
@@ -331,13 +342,8 @@ export default function Dashboard() {
                                     <TableRow>
                                         <TableHead>No. </TableHead>
                                         <TableHead>Name</TableHead>
-                                        <TableHead className="xl:table-column">
-                                            Theme
-                                        </TableHead>
-                                        <TableHead className="xl:table-column">
-                                            PS No.
-                                        </TableHead>
-                                        <TableHead className="hidden lg:block">
+                                        <TableHead>Members</TableHead>
+                                        <TableHead className="">
                                             Problem Statement
                                         </TableHead>
                                         <TableHead className="text-right">
@@ -350,115 +356,191 @@ export default function Dashboard() {
                                 </TableHeader>
                                 <TableBody>
                                     {teams.length > 0 ? (
-                                        teams.map((team, index) => (
-                                            <TableRow key={team.id}>
-                                                <TableCell className="">
-                                                    {index + 1}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Link
-                                                        href={`/team/${team.id}`}
-                                                        className="font-medium"
-                                                        target="_blank"
-                                                    >
-                                                        {team.team_name}
-                                                    </Link>
-                                                    {/* <div className=" text-sm text-muted-foreground md:inline">
-                                                        liam@example.com
-                                                    </div> */}
-                                                </TableCell>
-                                                <TableCell className="">
-                                                    {team.theme}
-                                                </TableCell>
-
-                                                <TableCell className="">
-                                                    {
-                                                        team.problem_statement_number
-                                                    }
-                                                </TableCell>
-                                                <TableCell className="hidden lg:block">
-                                                    {
-                                                        team.problem_statement_title
-                                                    }
-                                                </TableCell>
-                                                <TableCell className="">
-                                                    <Select
-                                                        defaultValue={
-                                                            team.room_allotted
-                                                        }
-                                                        onValueChange={(
-                                                            selectedRoom
-                                                        ) =>
-                                                            handleRoomAllocation(
-                                                                selectedRoom,
-                                                                team.team_leader_id
-                                                            )
-                                                        }
-                                                    >
-                                                        <SelectTrigger className="w-[180px]">
-                                                            <SelectValue
-                                                                placeholder={
-                                                                    team.room_allotted
-                                                                        ? team.room_allotted
-                                                                        : "Not allotted"
-                                                                }
-                                                            />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="22">
-                                                                22
-                                                            </SelectItem>
-                                                            <SelectItem value="102">
-                                                                102
-                                                            </SelectItem>
-                                                            <SelectItem value="103">
-                                                                103
-                                                            </SelectItem>
-                                                            <SelectItem value="104">
-                                                                104
-                                                            </SelectItem>
-                                                            <SelectItem value="107">
-                                                                107
-                                                            </SelectItem>
-                                                            <SelectItem value="136">
-                                                                136
-                                                            </SelectItem>
-                                                            <SelectItem value="202">
-                                                                202
-                                                            </SelectItem>
-                                                            <SelectItem value="216">
-                                                                216
-                                                            </SelectItem>
-                                                            <SelectItem value="217">
-                                                                217
-                                                            </SelectItem>
-                                                            <SelectItem value="219">
-                                                                219
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </TableCell>
-                                                <TableCell className="">
-                                                    {team.presentation ? (
+                                        teamsWithFemaleCount.map(
+                                            (team, index) => (
+                                                <TableRow key={team.id}>
+                                                    <TableCell className="">
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell>
                                                         <Link
-                                                            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/presentation/${team.presentation}`}
+                                                            href={`/team/${team.id}`}
+                                                            className="font-medium"
                                                             target="_blank"
                                                         >
-                                                            <Badge className="text-xs">
-                                                                Uploaded
-                                                            </Badge>
+                                                            <CopyableText
+                                                                text={
+                                                                    team.team_name
+                                                                }
+                                                            ></CopyableText>
                                                         </Link>
-                                                    ) : (
-                                                        <Badge
-                                                            className="text-xs"
-                                                            variant="outline"
+                                                        <br />
+                                                        <br />
+                                                        <p>Team leader</p>
+                                                        <div className=" text-sm text-muted-foreground md:inline">
+                                                            <CopyableText
+                                                                text={
+                                                                    team
+                                                                        .allowed_users
+                                                                        .name
+                                                                }
+                                                            ></CopyableText>
+                                                        </div>
+                                                        <div className=" text-sm text-muted-foreground md:inline">
+                                                            <CopyableText
+                                                                text={
+                                                                    team
+                                                                        .allowed_users
+                                                                        .email
+                                                                }
+                                                            ></CopyableText>
+                                                        </div>
+                                                        <div>
+                                                            Number of females{" "}
+                                                            {team.femaleCount}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {team.team_members.map(
+                                                            (
+                                                                member,
+                                                                memberIndex
+                                                            ) => (
+                                                                <p
+                                                                    key={
+                                                                        memberIndex
+                                                                    }
+                                                                >
+                                                                    {memberIndex >
+                                                                        0 && ""}
+                                                                    <b>
+                                                                        <CopyableText
+                                                                            className="mb-2"
+                                                                            text={
+                                                                                member.full_name
+                                                                            }
+                                                                        ></CopyableText>{" "}
+                                                                        <span className="font-normal">
+                                                                            (
+                                                                            {
+                                                                                member
+                                                                                    .gender[0]
+                                                                            }
+                                                                            )
+                                                                        </span>
+                                                                    </b>
+                                                                    <br />
+                                                                    <CopyableText
+                                                                        text={
+                                                                            member.email
+                                                                        }
+                                                                    ></CopyableText>
+                                                                    <br />
+                                                                    <br />
+                                                                </p>
+                                                            )
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="">
+                                                        <b>Theme: </b>
+                                                        <CopyableText
+                                                            text={team.theme}
+                                                        ></CopyableText>
+                                                        <br />
+                                                        <b>
+                                                            <CopyableText
+                                                                text={
+                                                                    team.problem_statement_number
+                                                                }
+                                                            ></CopyableText>
+                                                        </b>
+                                                        {" - "}
+                                                        <CopyableText
+                                                            text={
+                                                                team.problem_statement_title
+                                                            }
+                                                        ></CopyableText>
+                                                    </TableCell>
+                                                    <TableCell className="">
+                                                        <Select
+                                                            defaultValue={
+                                                                team.room_allotted
+                                                            }
+                                                            onValueChange={(
+                                                                selectedRoom
+                                                            ) =>
+                                                                handleRoomAllocation(
+                                                                    selectedRoom,
+                                                                    team.team_leader_id
+                                                                )
+                                                            }
+                                                            disabled
                                                         >
-                                                            Missing
-                                                        </Badge>
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
+                                                            <SelectTrigger className="w-[180px]">
+                                                                <SelectValue
+                                                                    placeholder={
+                                                                        team.room_allotted
+                                                                            ? team.room_allotted
+                                                                            : "Not allotted"
+                                                                    }
+                                                                />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="22">
+                                                                    22
+                                                                </SelectItem>
+                                                                <SelectItem value="102">
+                                                                    102
+                                                                </SelectItem>
+                                                                <SelectItem value="103">
+                                                                    103
+                                                                </SelectItem>
+                                                                <SelectItem value="104">
+                                                                    104
+                                                                </SelectItem>
+                                                                <SelectItem value="107">
+                                                                    107
+                                                                </SelectItem>
+                                                                <SelectItem value="136">
+                                                                    136
+                                                                </SelectItem>
+                                                                <SelectItem value="202">
+                                                                    202
+                                                                </SelectItem>
+                                                                <SelectItem value="216">
+                                                                    216
+                                                                </SelectItem>
+                                                                <SelectItem value="217">
+                                                                    217
+                                                                </SelectItem>
+                                                                <SelectItem value="219">
+                                                                    219
+                                                                </SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </TableCell>
+                                                    <TableCell className="">
+                                                        {team.presentation ? (
+                                                            <Link
+                                                                href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/presentation/${team.presentation}`}
+                                                                target="_blank"
+                                                            >
+                                                                <Badge className="text-xs">
+                                                                    Uploaded
+                                                                </Badge>
+                                                            </Link>
+                                                        ) : (
+                                                            <Badge
+                                                                className="text-xs"
+                                                                variant="outline"
+                                                            >
+                                                                Missing
+                                                            </Badge>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        )
                                     ) : (
                                         <TableRow>
                                             <TableCell>
