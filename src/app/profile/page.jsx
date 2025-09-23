@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
     Card,
     CardContent,
@@ -28,6 +29,10 @@ import { lorelei } from "@dicebear/collection";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { FileUpload } from "@/components/ui/file-upload";
+
+const genAI = new GoogleGenerativeAI(
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY
+);
 
 export default function TeamDetails({ params }) {
     const [teamData, setTeamData] = useState(null);
@@ -96,6 +101,52 @@ export default function TeamDetails({ params }) {
             size: 128,
         });
         return avatar.toDataUri();
+    };
+
+    const analyzeImage = async (file) => {
+        toast({
+            title: "AI is verifying your group photo",
+            description: "Please wait. It won't take much time.",
+        });
+
+        try {
+            const model = genAI.getGenerativeModel({
+                model: "gemini-2.5-flash-lite",
+            });
+
+            // Convert the file to a base64 string
+            const base64Image = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
+            const result = await model.generateContent([
+                "Analyze this image and tell me: 1) How many people are in the image? 2) Is there at least one female in the image? Answer in the format: 'People: [number], Female: [yes/no]'",
+                {
+                    inlineData: {
+                        data: base64Image.split(",")[1],
+                        mimeType: file.type,
+                    },
+                },
+            ]);
+
+            const response = await result.response;
+            const text = response.text();
+
+            const match = text.match(/People: (\d+), Female: (yes|no)/i);
+            if (match) {
+                return {
+                    peopleCount: parseInt(match[1]),
+                    hasFemale: match[2].toLowerCase() === "yes",
+                };
+            }
+            throw new Error("Couldn't parse the API response");
+        } catch (error) {
+            console.error("Error analyzing image:", error);
+            throw error;
+        }
     };
 
     const handleFileChange = (file) => {
@@ -218,47 +269,74 @@ export default function TeamDetails({ params }) {
         if (!groupPhotoFile || !teamData) return;
 
         setUploadingGroupPhoto(true);
-        const fileExt = groupPhotoFile.name.split(".").pop();
-        const fileName = `${teamData.team_name}_${Date.now()}_group_photo.${fileExt}`;
+        
+        try {
+            // Analyze the image with Gemini first
+            const imageAnalysis = await analyzeImage(groupPhotoFile);
+            
+            if (imageAnalysis.peopleCount <= 2 || !imageAnalysis.hasFemale) {
+                toast({
+                    title: "Invalid Group Photo",
+                    description:
+                        imageAnalysis.peopleCount <= 2
+                            ? "The image you uploaded doesn't seem to be a group photo."
+                            : "Your group must include at least one female member.",
+                    variant: "destructive",
+                });
+                setUploadingGroupPhoto(false);
+                setGroupPhotoFile(null);
+                return;
+            }
 
-        // Delete old group photo if it exists
-        if (teamData.group_photo_url) {
-            await supabase.storage
+            const fileExt = groupPhotoFile.name.split(".").pop();
+            const fileName = `${teamData.team_name}_${Date.now()}_group_photo.${fileExt}`;
+
+            // Delete old group photo if it exists
+            if (teamData.group_photo_url) {
+                await supabase.storage
+                    .from("group-photos")
+                    .remove([teamData.group_photo_url]);
+            }
+
+            const { error: uploadError } = await supabase.storage
                 .from("group-photos")
-                .remove([teamData.group_photo_url]);
-        }
+                .upload(fileName, groupPhotoFile);
 
-        const { error: uploadError } = await supabase.storage
-            .from("group-photos")
-            .upload(fileName, groupPhotoFile);
+            if (uploadError) {
+                toast({
+                    title: "Upload failed",
+                    description: "There was an error uploading your group photo",
+                    variant: "destructive",
+                });
+                setUploadingGroupPhoto(false);
+                return;
+            }
 
-        if (uploadError) {
+            const { error: updateError } = await supabase
+                .from("teams")
+                .update({ group_photo_url: fileName })
+                .eq("id", teamData.id);
+
+            if (updateError) {
+                toast({
+                    title: "Update failed",
+                    description: "There was an error updating your team information",
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Upload successful",
+                    description: "Your group photo has been uploaded and verified",
+                });
+                setTeamData({ ...teamData, group_photo_url: fileName });
+            }
+        } catch (error) {
+            console.error("Error in group photo upload:", error);
             toast({
-                title: "Upload failed",
-                description: "There was an error uploading your group photo",
+                title: "Analysis failed",
+                description: "There was an error analyzing your group photo. Please try again.",
                 variant: "destructive",
             });
-            setUploadingGroupPhoto(false);
-            return;
-        }
-
-        const { error: updateError } = await supabase
-            .from("teams")
-            .update({ group_photo_url: fileName })
-            .eq("id", teamData.id);
-
-        if (updateError) {
-            toast({
-                title: "Update failed",
-                description: "There was an error updating your team information",
-                variant: "destructive",
-            });
-        } else {
-            toast({
-                title: "Upload successful",
-                description: "Your group photo has been uploaded",
-            });
-            setTeamData({ ...teamData, group_photo_url: fileName });
         }
 
         setUploadingGroupPhoto(false);
