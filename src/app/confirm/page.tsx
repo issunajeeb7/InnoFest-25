@@ -422,9 +422,7 @@ export default function ConfirmationForm() {
                                 Congratulations {name}!
                             </AlertTitle>
                             <AlertDescription>
-                                <p className="text-gray-700 mb-4">
-                                    Dear {name},
-                                </p>
+                                
                                 <p className="text-gray-700 mb-4">
                                     You&apos;ve taken the first step towards an
                                     amazing hackathon experience. Your
