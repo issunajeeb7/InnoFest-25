@@ -23,9 +23,9 @@ export async function sendConfirmationEmail(data: EmailData) {
     const mailOptions = {
         from: process.env.GMAIL_USER,
         to: data.to,
-        subject: "DUKInnoFest 2024 - Registration Confirmation",
+        subject: "DUKInnoFest 2025 - Registration Confirmation",
         html: `
-      <h1>Thank you for registering for DUKInnoFest 2024!</h1>
+      <h1>Thank you for registering for DUKInnoFest 2025!</h1>
       <p>Dear Participant,</p>
       <p>Your team has been successfully registered for the hackathon. Here are your details:</p>
       <ul>
@@ -35,7 +35,7 @@ export async function sendConfirmationEmail(data: EmailData) {
         <li><strong>Problem Statement Title:</strong> ${data.problemStatementTitle}</li>
       </ul>
       <p>We're excited to see your innovative ideas at the hackathon!</p>
-      <p>Best regards,<br>The DUKInnoFest 2024 Team</p>
+      <p>Best regards,<br>The DUKInnoFest 2025 Team</p>
     `,
     };
 

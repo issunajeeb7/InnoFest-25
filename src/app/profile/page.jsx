@@ -39,6 +39,8 @@ export default function TeamDetails({ params }) {
     const { session, loading } = useSession();
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const [groupPhotoFile, setGroupPhotoFile] = useState(null);
+    const [uploadingGroupPhoto, setUploadingGroupPhoto] = useState(false);
     const { toast } = useToast();
 
     const fetchTeamMembers = useCallback(
@@ -130,6 +132,41 @@ export default function TeamDetails({ params }) {
         }
     };
 
+    const handleGroupPhotoChange = (file) => {
+        setGroupPhotoFile(file);
+        if (file) {
+            // Check for file size
+            if (file[0].size > 10 * 1024 * 1024) {
+                // 10MB limit for images
+                toast({
+                    title: "File too large",
+                    description: "Maximum file size is 10MB",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            // Check for valid image file types
+            const validImageTypes = [
+                "image/jpeg",
+                "image/jpg", 
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!validImageTypes.includes(file[0].type)) {
+                toast({
+                    title: "Invalid file type",
+                    description: "Please upload a JPEG, PNG, or WebP image",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            setGroupPhotoFile(file[0]); // Set the file if valid
+        }
+    };
+
     const handleUpload = async () => {
         if (!file || !teamData) return;
 
@@ -177,6 +214,57 @@ export default function TeamDetails({ params }) {
         setFile(null);
     };
 
+    const handleGroupPhotoUpload = async () => {
+        if (!groupPhotoFile || !teamData) return;
+
+        setUploadingGroupPhoto(true);
+        const fileExt = groupPhotoFile.name.split(".").pop();
+        const fileName = `${teamData.team_name}_${Date.now()}_group_photo.${fileExt}`;
+
+        // Delete old group photo if it exists
+        if (teamData.group_photo_url) {
+            await supabase.storage
+                .from("group-photos")
+                .remove([teamData.group_photo_url]);
+        }
+
+        const { error: uploadError } = await supabase.storage
+            .from("group-photos")
+            .upload(fileName, groupPhotoFile);
+
+        if (uploadError) {
+            toast({
+                title: "Upload failed",
+                description: "There was an error uploading your group photo",
+                variant: "destructive",
+            });
+            setUploadingGroupPhoto(false);
+            return;
+        }
+
+        const { error: updateError } = await supabase
+            .from("teams")
+            .update({ group_photo_url: fileName })
+            .eq("id", teamData.id);
+
+        if (updateError) {
+            toast({
+                title: "Update failed",
+                description: "There was an error updating your team information",
+                variant: "destructive",
+            });
+        } else {
+            toast({
+                title: "Upload successful",
+                description: "Your group photo has been uploaded",
+            });
+            setTeamData({ ...teamData, group_photo_url: fileName });
+        }
+
+        setUploadingGroupPhoto(false);
+        setGroupPhotoFile(null);
+    };
+
     if (loading || isLoading) return <div>Loading team details...</div>;
     if (error)
         return (
@@ -215,7 +303,7 @@ export default function TeamDetails({ params }) {
                         <div className="flex justify-between items-center">
                             <CardTitle>{teamData.team_name}</CardTitle>
                             <Link href={"/profile/add-team"}>
-                                <Button>Setup team</Button>
+                                <Button>Setup Team</Button>
                             </Link>
                         </div>
                     </CardHeader>
@@ -277,17 +365,72 @@ export default function TeamDetails({ params }) {
                                 </TableRow>
                             </TableBody>
                         </Table>
-                        {teamData.group_photo_url ? (
-                            <Image
-                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`}
-                                alt="Group Photo"
-                                width={600}
-                                height={600}
-                                className="w-full rounded-lg object-cover"
-                            ></Image>
-                        ) : (
-                            <Label>No group photo uploaded</Label>
-                        )}
+                        
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold mb-3">Group Photo</h3>
+                            {teamData.group_photo_url ? (
+                                <div className="space-y-4">
+                                    <div className="relative">
+                                        <Image
+                                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/group-photos/${teamData.group_photo_url}`}
+                                            alt="Group Photo"
+                                            width={600}
+                                            height={600}
+                                            className="w-full rounded-lg object-cover"
+                                        />
+                                        <Button
+                                            size="sm"
+                                            className="absolute top-2 right-2"
+                                            onClick={() => document.getElementById('group-photo-input').click()}
+                                        >
+                                            Edit
+                                        </Button>
+                                    </div>
+                                    <input
+                                        id="group-photo-input"
+                                        type="file"
+                                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                                        onChange={(e) => handleGroupPhotoChange(e.target.files)}
+                                        className="hidden"
+                                    />
+                                    {groupPhotoFile && (
+                                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <p className="text-sm">Selected: {groupPhotoFile.name}</p>
+                                            <Button
+                                                onClick={handleGroupPhotoUpload}
+                                                disabled={!groupPhotoFile || uploadingGroupPhoto}
+                                                size="sm"
+                                            >
+                                                {uploadingGroupPhoto ? "Uploading..." : "Update Photo"}
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-gray-600">
+                                            {groupPhotoFile ? `Selected: ${groupPhotoFile.name}` : "No group photo uploaded yet."}
+                                        </Label>
+                                        <Button
+                                            size="sm"
+                                            onClick={groupPhotoFile ? handleGroupPhotoUpload : () => document.getElementById('group-photo-input').click()}
+                                            disabled={uploadingGroupPhoto}
+                                            className={groupPhotoFile ? "!bg-green-600 hover:!bg-green-700 !text-white !border-green-600" : ""}
+                                        >
+                                            {uploadingGroupPhoto ? "Uploading..." : (groupPhotoFile ? "Upload" : "Upload Photo")}
+                                        </Button>
+                                    </div>
+                                    <input
+                                        id="group-photo-input"
+                                        type="file"
+                                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                                        onChange={(e) => handleGroupPhotoChange(e.target.files)}
+                                        className="hidden"
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
                 <Card className="max-w-2xl w-full">
@@ -295,7 +438,7 @@ export default function TeamDetails({ params }) {
                         <div className="flex justify-between items-center">
                             <CardTitle>{teamData.team_name}</CardTitle>
                             <Link href={"/profile/add-team"}>
-                                <Button>Edit team</Button>
+                                <Button>Setup Team</Button>
                             </Link>
                         </div>
                     </CardHeader>

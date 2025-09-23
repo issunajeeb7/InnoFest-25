@@ -63,6 +63,7 @@ export default function Page() {
             .fill(null)
             .map((_, index) => createPlaceholderItem(index + 1)),
     ]);
+    const [userHasTeam, setUserHasTeam] = useState<boolean>(false);
     const supabase = createClient();
     const { session, loading } = useSession();
 
@@ -76,6 +77,12 @@ export default function Page() {
                     );
 
                 if (error) throw error;
+
+                // Check if the current user has a team
+                if (session?.user?.id) {
+                    const userTeam = data.find(team => team.user_id === session.user.id);
+                    setUserHasTeam(!!userTeam);
+                }
 
                 updateItemsWithTeamData(data);
             } catch (error) {
@@ -278,10 +285,10 @@ export default function Page() {
                 {items.map((item, i) =>
                     i === 0 ? (
                         session ? (
-                            <Link href={"/confirm"} key={i}>
+                            <Link href={userHasTeam ? "/profile" : "/confirm"} key={i}>
                                 <BentoGridItem
-                                    title={item.title}
-                                    description={item.description}
+                                    title={userHasTeam ? "View your team" : item.title}
+                                    description={userHasTeam ? "Click here to view and manage your team details" : item.description}
                                     header={item.header}
                                     icon={item.icon}
                                     className="cursor-pointer"

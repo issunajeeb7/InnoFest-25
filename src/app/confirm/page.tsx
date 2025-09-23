@@ -545,7 +545,7 @@ export default function ConfirmationForm() {
                                     <Link
                                         className="text-blue-600"
                                         target="_blank"
-                                        href="https://sih.gov.in/sih2024PS"
+                                        href="https://sih.gov.in/sih2025PS"
                                     >
                                         here
                                     </Link>

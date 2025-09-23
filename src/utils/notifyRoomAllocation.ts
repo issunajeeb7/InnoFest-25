@@ -20,14 +20,14 @@ export async function notifyRoomAllocation(data: EmailData) {
     const mailOptions = {
         from: process.env.GMAIL_USER,
         to: data.to,
-        subject: "DUKInnoFest 2024 - Room Allocation Notification",
+        subject: "DUKInnoFest 2025 - Room Allocation Notification",
         html: `
-      <h1>Room Allocation for DUKInnoFest 2024</h1>
+      <h1>Room Allocation for DUKInnoFest 2025</h1>
       <p>Dear Team Leader,</p>
       <p>Your team has been successfully allocated/reallocated <strong>room number ${data.roomAllotted}</strong> for the hackathon.</p>
       <p>If there is any change in your room allocation, we will notify you promptly.</p>
       <p>We look forward to seeing your innovative solutions at the hackathon!</p>
-      <br /><p>Best regards,<br />The DUKInnoFest 2024 Team</p>
+      <br /><p>Best regards,<br />The DUKInnoFest 2025 Team</p>
     `,
     };
 
