@@ -28,7 +28,7 @@ export default function LoginForm() {
         e.preventDefault();
         setIsLoading(true);
 
-        if (email !== "aditya.vishnu@duk.ac.in") {
+        if (email !== "issunajeeb7@gmail.com") {
             router.push("/");
         }
 

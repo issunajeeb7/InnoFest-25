@@ -67,7 +67,7 @@ export default function Dashboard() {
                 const { data, error } = await supabase
                     .from("teams")
                     .select(
-                        "id, team_leader_id, team_name, theme, problem_statement_number, problem_statement_title, vegetarian_count, resources_required, day_scholar_count, room_allotted, presentation, allowed_users(email, name), team_members(full_name, email, gender)"
+                        "id, team_leader_id, team_name, theme, problem_statement_number, problem_statement_title, vegetarian_count, resources_required, day_scholar_count, room_allotted, presentation, user_id, team_members(full_name, email, gender, is_leader)"
                     )
                     .order("team_name");
 
@@ -128,29 +128,28 @@ export default function Dashboard() {
         };
     });
 
-    const handleRoomAllocation = async (selectedRoom, leaderId) => {
+    const handleRoomAllocation = async (selectedRoom, teamId) => {
         try {
             const { error } = await supabase
                 .from("teams")
                 .update({ room_allotted: selectedRoom })
-                .eq("team_leader_id", leaderId);
+                .eq("id", teamId);
 
             if (error) throw error;
 
-            try {
-                const { data, error } = await supabase
-                    .from("allowed_users")
-                    .select("email")
-                    .eq("id", leaderId)
-                    .single();
-
-                if (error) throw error;
-                await notifyRoomAllocation({
-                    to: data.email,
-                    roomAllotted: selectedRoom,
-                });
-            } catch (error) {
-                console.error("Error fetching leader email:", error);
+            // Find the team to get leader's email
+            const team = teams.find(t => t.id === teamId);
+            const teamLeader = team?.team_members.find(member => member.is_leader);
+            
+            if (teamLeader?.email) {
+                try {
+                    await notifyRoomAllocation({
+                        to: teamLeader.email,
+                        roomAllotted: selectedRoom,
+                    });
+                } catch (error) {
+                    console.error("Error sending room allocation email:", error);
+                }
             }
         } catch (error) {
             console.error("Error updating room:", error);
@@ -165,7 +164,7 @@ export default function Dashboard() {
         );
     }
 
-    if (session.user.email !== "aditya.vishnu@duk.ac.in") {
+    if (session.user.email !== "issunajeeb7@gmail.com") {
         router.push("/");
     }
 
@@ -380,18 +379,14 @@ export default function Dashboard() {
                                                         <div className=" text-sm text-muted-foreground md:inline">
                                                             <CopyableText
                                                                 text={
-                                                                    team
-                                                                        .allowed_users
-                                                                        .name
+                                                                    team.team_members.find(member => member.is_leader)?.full_name || 'No leader assigned'
                                                                 }
                                                             ></CopyableText>
                                                         </div>
                                                         <div className=" text-sm text-muted-foreground md:inline">
                                                             <CopyableText
                                                                 text={
-                                                                    team
-                                                                        .allowed_users
-                                                                        .email
+                                                                    team.team_members.find(member => member.is_leader)?.email || 'No email available'
                                                                 }
                                                             ></CopyableText>
                                                         </div>
@@ -471,7 +466,7 @@ export default function Dashboard() {
                                                             ) =>
                                                                 handleRoomAllocation(
                                                                     selectedRoom,
-                                                                    team.team_leader_id
+                                                                    team.id
                                                                 )
                                                             }
                                                             disabled

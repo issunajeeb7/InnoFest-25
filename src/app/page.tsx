@@ -164,11 +164,11 @@ export default function Page() {
                         </svg>
                         <div className="text-3xl font-bold hidden md:block">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                         <div className="text-xl font-bold md:hidden">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                     </Link>
 
@@ -319,7 +319,7 @@ export default function Page() {
                     </h2>
 
                     <p className="mt-4 text-gray-500 sm:text-xl">
-                        DUK<span className="font-bold">InnoFest</span>&apos;24
+                        DUK<span className="font-bold">InnoFest</span>&apos;25
                         is a collaborative effort by Digital University Kerala,
                         Institution&apos;s Innovation Council - DUK and the
                         Innovation Club of DUK. This screening event aims to
@@ -380,12 +380,12 @@ export default function Page() {
 
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
-                            <Label>Smart India Hackathon 2024</Label>
+                            <Label>Smart India Hackathon 2025</Label>
                         </dt>
 
                         <dd className="text-4xl font-extrabold text-blue-600 md:text-5xl">
                             <Image
-                                src={"/SIH_logo_2024_horizontal.png"}
+                                src={"/SIH_logo_2025_horizontal.png"}
                                 alt="Organizer Logo"
                                 width={100}
                                 height={100}

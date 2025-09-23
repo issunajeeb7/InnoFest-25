@@ -43,24 +43,6 @@ export default function Home() {
         }
 
         try {
-            // Check if user is allowed to sign up
-            const { data: allowedUser, error: allowedError } = await supabase
-                .from("allowed_users")
-                .select("email")
-                .eq("email", email)
-                .single();
-
-            if (allowedError || !allowedUser) {
-                toast({
-                    title: "Registration Error",
-                    description:
-                        "Only team leaders are allowed to sign up. If you find this is a mistake, please contact the organizers.",
-                    variant: "destructive",
-                });
-                setIsLoading(false);
-                return;
-            }
-
             // Proceed with sign up
             const { error } = await supabase.auth.signUp({
                 email,
@@ -71,7 +53,7 @@ export default function Home() {
 
             toast({
                 title: "Sign Up Successful",
-                description: "Please check your email to verify your account.",
+                description: "Please check your email to verify your account before logging in.",
             });
             router.push("/login");
         } catch (error: any) {
@@ -119,8 +101,8 @@ export default function Home() {
                         </h2>
 
                         <p className="mt-4 leading-relaxed text-white/90">
-                            Welcome to the DUKInnoFest&apos;24 Team Portal! Team
-                            leaders please sign up to confirm your slot.
+                            Welcome to the DUKInnoFest&apos;24 Team Portal! 
+                            Sign up to participate in the hackathon.
                         </p>
                     </div>
                 </section>
@@ -150,13 +132,12 @@ export default function Home() {
                             <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
                                 Sign up to{" "}
                                 <span className="font-normal">DUK</span>
-                                InnoFest&apos;24
+                                InnoFest&apos;25
                             </h1>
 
                             <p className="mt-4 leading-relaxed text-gray-500">
                                 Welcome to the DUKInnoFest&apos;24 Team Portal!
-                                Team leaders please sign up to confirm your
-                                slot.
+                                Sign up to participate in the hackathon.
                             </p>
                         </div>
 
@@ -167,13 +148,13 @@ export default function Home() {
                             <Link href={"/"} className="hidden lg:block">
                                 <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
                                     <span className="font-normal">DUK</span>
-                                    InnoFest&apos;24
+                                    InnoFest&apos;25
                                 </h1>
                             </Link>
                             <div className="col-span-6 font-bold text-2xl">
                                 Create your account{" "}
                                 <div className="text-sm">
-                                    (for team leaders)
+                                    (for hackathon participants)
                                 </div>
                             </div>
                             <div className="col-span-6">

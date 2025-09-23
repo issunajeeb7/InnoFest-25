@@ -130,7 +130,7 @@ export default function ConfirmationForm() {
 
         try {
             const model = genAI.getGenerativeModel({
-                model: "gemini-1.5-flash",
+                model: "gemini-2.5-flash-lite",
             });
 
             // Convert the file to a base64 string
@@ -305,11 +305,11 @@ export default function ConfirmationForm() {
                         </svg>
                         <div className="text-3xl font-bold hidden md:block">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                         <div className="text-xl font-bold md:hidden">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                     </Link>
 
@@ -419,7 +419,7 @@ export default function ConfirmationForm() {
                             className="bg-gray-50 border-gray-200 mt-12"
                         >
                             <AlertTitle className="text-2xl font-bold text-gray-800 mb-4">
-                                Congratulations, {name}!
+                                Congratulations {name}!
                             </AlertTitle>
                             <AlertDescription>
                                 <p className="text-gray-700 mb-4">

@@ -77,7 +77,7 @@ export default function Home() {
 
                         <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </h2>
 
                         <p className="mt-4 leading-relaxed text-white/90">
@@ -111,7 +111,7 @@ export default function Home() {
                             <Link href={"/"}>
                                 <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
                                     <span className="font-normal">DUK</span>
-                                    InnoFest&apos;24
+                                    InnoFest&apos;25
                                 </h1>
                             </Link>
 
@@ -130,7 +130,7 @@ export default function Home() {
                             >
                                 <div className="text-3xl font-bold hidden md:block">
                                     <span className="font-normal">DUK</span>
-                                    InnoFest&apos;24
+                                    InnoFest&apos;25
                                 </div>
                             </Link>
                             <div className="col-span-6 text-sm hidden lg:block">

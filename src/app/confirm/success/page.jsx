@@ -173,11 +173,11 @@ export default function RegistrationSuccess() {
                         </svg>
                         <div className="text-3xl font-bold hidden md:block">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                         <div className="text-xl font-bold md:hidden">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                     </Link>
 
@@ -265,7 +265,7 @@ export default function RegistrationSuccess() {
                     <CardHeader>
                         <CardTitle>
                             Congratulations! Your team is registered for
-                            InnoFest&apos;24 ✅
+                            InnoFest&apos;25 ✅
                         </CardTitle>
                     </CardHeader>
                     <CardContent>

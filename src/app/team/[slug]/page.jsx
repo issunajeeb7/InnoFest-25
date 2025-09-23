@@ -120,11 +120,11 @@ export default function TeamDetails({ params }) {
                         </svg>
                         <div className="text-3xl font-bold hidden md:block">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                         <div className="text-xl font-bold md:hidden">
                             <span className="font-normal">DUK</span>
-                            InnoFest&apos;24
+                            InnoFest&apos;25
                         </div>
                     </Link>
 
