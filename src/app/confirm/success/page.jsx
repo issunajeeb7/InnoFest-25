@@ -146,7 +146,7 @@ export default function RegistrationSuccess() {
 
     if (!teamData) return <div>No team data found</div>;
 
-    const shareUrl = "https://innofest.vercel.app/";
+    const shareUrl = "https://inno-fest-25.vercel.app//";
 
     const shareTitle = `Check out our team: ${teamData.team_name}`;
     const shareDescription = `We're working on ${teamData.problem_statement_title} for the theme: ${teamData.theme}. Wish us luck!`;

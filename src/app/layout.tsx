@@ -11,14 +11,14 @@ const fontSans = FontSans({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://innofest.vercel.app"),
+    metadataBase: new URL("https://inno-fest-25.vercel.app/"),
     title: "DUKInnoFest'25 Portal",
-    description: "Your all-in-one portal for DUKInnoFest 2024 edition",
+    description: "Your all-in-one portal for DUKInnoFest 2025 edition",
     openGraph: {
         title: "DUKInnoFest'25 Portal",
-        description: "Your all-in-one portal for DUKInnoFest 2024 edition",
-        url: "https://innofest.vercel.app/",
-        siteName: "DUKInnoFest 2024",
+        description: "Your all-in-one portal for DUKInnoFest 2025 edition",
+        url: "https://inno-fest-25.vercel.app//",
+        siteName: "DUKInnoFest 2025",
         images: [
             {
                 url: "/opengraph-image.png",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     twitter: {
         card: "summary_large_image",
         title: "DUKInnoFest'25 Portal",
-        description: "Your all-in-one portal for DUKInnoFest 2024 edition",
+        description: "Your all-in-one portal for DUKInnoFest 2025 edition",
         images: ["/twitter-image.png"],
     },
 };

@@ -133,12 +133,10 @@ export default function Home() {
                                     InnoFest&apos;25
                                 </div>
                             </Link>
-                            <div className="col-span-6 text-sm hidden lg:block">
-                                Please confirm your email before logging in (if
-                                not done). <br />
+                            <div className="col-span-6 text-sm">
                                 <span className="text-orange-500">
                                     Please check your inbox for a confirmation
-                                    email.
+                                    email (if not done).
                                 </span>
                             </div>
                             <div className="col-span-6">
