@@ -136,7 +136,7 @@ export default function Home() {
                             </h1>
 
                             <p className="mt-4 leading-relaxed text-gray-500">
-                                Welcome to the DUKInnoFest&apos;24 Team Portal!
+                                Welcome to the DUKInnoFest&apos;25 Team Portal!
                                 Sign up to participate in the hackathon.
                             </p>
                         </div>
