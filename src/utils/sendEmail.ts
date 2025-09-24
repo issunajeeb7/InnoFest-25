@@ -34,7 +34,9 @@ export async function sendConfirmationEmail(data: EmailData) {
         <li><strong>Problem Statement Number:</strong> ${data.problemStatementNumber}</li>
         <li><strong>Problem Statement Title:</strong> ${data.problemStatementTitle}</li>
       </ul>
+      <p>Please visit <a href="https://inno-fest-25.vercel.app/profile/add-team">to add team members</p>
       <p>We're excited to see your innovative ideas at the hackathon!</p>
+      
       <p>Best regards,<br>The DUKInnoFest 2025 Team</p>
     `,
     };

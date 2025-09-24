@@ -271,10 +271,14 @@ export default function RegistrationSuccess() {
                     <CardContent>
                         <Table>
                             <TableCaption>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button>Share your team photo</Button>
-                                    </DialogTrigger>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                    <Link href="/profile/add-team">
+                                        <Button>Add Team Members</Button>
+                                    </Link>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button>Share your team photo</Button>
+                                        </DialogTrigger>
                                     <DialogContent>
                                         <DialogHeader>
                                             <DialogTitle>
@@ -386,6 +390,7 @@ export default function RegistrationSuccess() {
                                         )}
                                     </DialogContent>
                                 </Dialog>
+                                </div>
                             </TableCaption>
                             <TableBody>
                                 <TableRow>
