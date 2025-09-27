@@ -442,54 +442,56 @@ export default function ConfirmationForm() {
                     </div>
                 </div>
             </header>
-            <div className="lg:grid lg:min-h-screen lg:grid-cols-12">
-                <aside className="relative block lg:order-last lg:col-span-5 lg:h-full xl:col-span-6 px-6 py-6">
-                    <div className="relative z-10">
-                        <Alert
-                            variant="default"
-                            className="bg-gray-50 border-gray-200 mt-12"
-                        >
-                            <AlertTitle className="text-2xl font-bold text-gray-800 mb-4">
-                                Congratulations {name}!
-                            </AlertTitle>
-                            <AlertDescription>
-                                
-                                <p className="text-gray-700 mb-4">
-                                    You&apos;ve taken the first step towards an
-                                    amazing hackathon experience. Your
-                                    creativity and determination will shine
-                                    bright! Remember, every great innovation
-                                    starts with a single idea. Embrace the
-                                    challenges, learn from each other, and most
-                                    importantly, have fun! We can&apos;t wait to
-                                    see what incredible solutions you&apos;ll
-                                    come up with. Good luck and happy hacking!
-                                </p>
-                            </AlertDescription>
-                        </Alert>
-                        <div className="p-4 bg-white rounded-md mt-4 flex flex-col space-y-4">
-                            <Image
-                                className="rounded-md"
-                                alt="sample group photo"
-                                width={1000}
-                                height={500}
-                                src="/group_photo.jpg"
-                            ></Image>
-                            <h1>A sample group photo</h1>
+            <div className={`lg:grid lg:min-h-screen ${!isRegistrationClosed ? 'lg:grid-cols-12' : 'lg:grid-cols-1'}`}>
+                {!isRegistrationClosed && (
+                    <aside className="relative block lg:order-last lg:col-span-5 lg:h-full xl:col-span-6 px-6 py-6">
+                        <div className="relative z-10">
+                            <Alert
+                                variant="default"
+                                className="bg-gray-50 border-gray-200 mt-12"
+                            >
+                                <AlertTitle className="text-2xl font-bold text-gray-800 mb-4">
+                                    Congratulations {name}!
+                                </AlertTitle>
+                                <AlertDescription>
+                                    
+                                    <p className="text-gray-700 mb-4">
+                                        You&apos;ve taken the first step towards an
+                                        amazing hackathon experience. Your
+                                        creativity and determination will shine
+                                        bright! Remember, every great innovation
+                                        starts with a single idea. Embrace the
+                                        challenges, learn from each other, and most
+                                        importantly, have fun! We can&apos;t wait to
+                                        see what incredible solutions you&apos;ll
+                                        come up with. Good luck and happy hacking!
+                                    </p>
+                                </AlertDescription>
+                            </Alert>
+                            <div className="p-4 bg-white rounded-md mt-4 flex flex-col space-y-4">
+                                <Image
+                                    className="rounded-md"
+                                    alt="sample group photo"
+                                    width={1000}
+                                    height={500}
+                                    src="/group_photo.jpg"
+                                ></Image>
+                                <h1>A sample group photo</h1>
+                            </div>
                         </div>
-                    </div>
-                    <div className="absolute inset-0 z-0">
-                        <Image
-                            alt=""
-                            src="https://images.unsplash.com/photo-1605106325682-3482f7c1c9c4?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                            fill={true}
-                            style={{ objectFit: "cover" }}
-                            priority
-                        />
-                    </div>
-                </aside>
+                        <div className="absolute inset-0 z-0">
+                            <Image
+                                alt=""
+                                src="https://images.unsplash.com/photo-1605106325682-3482f7c1c9c4?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                fill={true}
+                                style={{ objectFit: "cover" }}
+                                priority
+                            />
+                        </div>
+                    </aside>
+                )}
 
-                <main className="flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
+                <main className={`flex items-center justify-center px-8 py-8 sm:px-12 lg:px-16 lg:py-12 ${!isRegistrationClosed ? 'lg:col-span-7 xl:col-span-6' : 'lg:col-span-1'}`}>
                     <div className="max-w-xl lg:max-w-3xl">
                         <h1 className="mt-6 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">
                             🤩 Add your team profile
@@ -510,11 +512,21 @@ export default function ConfirmationForm() {
                         )}
 
                         {isRegistrationClosed && (
-                            <Alert variant="destructive" className="mt-4 bg-red-50 border-red-200">
-                                <AlertDescription className="text-red-800">
-                                    🚫 <strong>Registration Closed!</strong> Sorry, you're late to the party! We've reached our maximum capacity. Thanks for your interest in DUKInnoFest'25!
-                                </AlertDescription>
-                            </Alert>
+                            <div className="mt-4 p-6 bg-red-50 border-2 border-red-200 rounded-lg text-center">
+                                <div className="mb-4 flex justify-center">
+                                    <div className="tenor-gif-embed" data-postid="15547901584294881727" data-share-method="host" data-aspect-ratio="1.27517" data-width="100%">
+                                        <a href="https://tenor.com/view/geez-ugh-shaking-head-gif-15547901584294881727">Geez Ugh GIF</a> from <a href="https://tenor.com/search/geez-gifs">Geez GIFs</a>
+                                    </div>
+                                    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+                                </div>
+                                <Alert variant="destructive" className="bg-red-100 border-red-300">
+                                    <AlertDescription className="text-red-900 text-lg">
+                                        🚫 <strong>Registration Closed!</strong><br/>
+                                        Sorry, you're late to the party! We've reached our maximum capacity of 40 teams.<br/>
+                                        Thanks for your interest in DUKInnoFest'25! 🎉
+                                    </AlertDescription>
+                                </Alert>
+                            </div>
                         )}
 
                         {!isRegistrationClosed && (
