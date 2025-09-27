@@ -70,6 +70,8 @@ export default function ConfirmationForm() {
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [name, setName] = useState(null);
+    const [isRegistrationClosed, setIsRegistrationClosed] = useState(false);
+    const [totalTeamCount, setTotalTeamCount] = useState(0);
     const router = useRouter();
     const { toast } = useToast();
     const supabase = createClient();
@@ -83,7 +85,6 @@ export default function ConfirmationForm() {
             if (!session) {
                 router.push("/login");
             } else {
-                setIsLoading(false);
                 setUser(session.user);
 
                 const { data, error } = await supabase
@@ -96,6 +97,19 @@ export default function ConfirmationForm() {
                 } else if (data) {
                     setName(data[0]?.name || "");
                 }
+
+                // Check total team count
+                const { data: teamsData, error: teamsError } = await supabase
+                    .from("teams")
+                    .select("id");
+
+                if (!teamsError && teamsData) {
+                    const count = teamsData.length;
+                    setTotalTeamCount(count);
+                    setIsRegistrationClosed(count >= 40);
+                }
+
+                setIsLoading(false);
             }
         };
 
@@ -170,6 +184,17 @@ export default function ConfirmationForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Check if registration is closed
+        if (isRegistrationClosed) {
+            toast({
+                title: "Registration Closed",
+                description: "Sorry, registration has been closed as we've reached our maximum capacity of 40 teams.",
+                variant: "destructive",
+            });
+            return;
+        }
+        
         setIsSubmitting(true);
         try {
             let imageAnalysis;
@@ -205,6 +230,11 @@ export default function ConfirmationForm() {
                 photoUrl = data.path;
             }
 
+            // Check if registration is after the deadline (27/09/2025 11:59 PM IST)
+            const deadlineDate = new Date('2025-09-27T23:59:00+05:30'); // IST timezone
+            const currentDate = new Date();
+            const isAfterDeadline = currentDate > deadlineDate;
+
             // Prepare team data, including optional fields
             const teamData = {
                 team_name: formData.teamName,
@@ -212,6 +242,7 @@ export default function ConfirmationForm() {
                 problem_statement_number: formData.problemStatementNumber,
                 problem_statement_title: formData.problemStatementTitle,
                 user_id: user?.id,
+                waiting_list: isAfterDeadline, // Set to true if registering after deadline
                 // Include optional fields only if they have values
                 ...(formData.vegetarianCount !== undefined && {
                     vegetarian_count: formData.vegetarianCount,
@@ -470,7 +501,24 @@ export default function ConfirmationForm() {
                             you bring the former.
                         </p>
 
-                        <form
+                        {!isRegistrationClosed && (
+                            <Alert variant="default" className="mt-4 bg-yellow-50 border-yellow-200">
+                                <AlertDescription className="text-yellow-800">
+                                    ⚠️ <strong>Notice:</strong> Late to the party? That's okay! Join our <b>waitlist</b> and get notified if a spot opens up.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+
+                        {isRegistrationClosed && (
+                            <Alert variant="destructive" className="mt-4 bg-red-50 border-red-200">
+                                <AlertDescription className="text-red-800">
+                                    🚫 <strong>Registration Closed!</strong> Sorry, you're late to the party! We've reached our maximum capacity. Thanks for your interest in DUKInnoFest'25!
+                                </AlertDescription>
+                            </Alert>
+                        )}
+
+                        {!isRegistrationClosed && (
+                            <form
                             onSubmit={handleSubmit}
                             className="flex flex-col space-y-4 py-12 max-w-2xl mx-auto"
                         >
@@ -626,6 +674,7 @@ export default function ConfirmationForm() {
                                     : "Confirm Registration"}
                             </Button>
                         </form>
+                        )}
                     </div>
                 </main>
             </div>

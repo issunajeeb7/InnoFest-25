@@ -25,6 +25,7 @@ type FormattedItem = {
     icon: React.ReactNode;
     teamId?: string | number;
     ps_number: number;
+    waiting_list?: boolean;
 };
 
 const confirmButton: FormattedItem = {
@@ -73,7 +74,7 @@ export default function Page() {
                 const { data, error } = await supabase
                     .from("teams")
                     .select(
-                        "id, team_name, problem_statement_number, problem_statement_title, group_photo_url, user_id"
+                        "id, team_name, problem_statement_number, problem_statement_title, group_photo_url, user_id, waiting_list"
                     );
 
                 if (error) throw error;
@@ -115,6 +116,7 @@ export default function Page() {
                 icon: <IconNumber className="h-6 w-6 text-neutral-500" />,
                 teamId: team.user_id,
                 ps_number: team.problem_statement_number,
+                waiting_list: team.waiting_list,
             }));
 
             const updatedItems = [
@@ -314,6 +316,7 @@ export default function Page() {
                                 header={item.header}
                                 icon={item.icon}
                                 ps_number={item.ps_number}
+                                waiting_list={item.waiting_list}
                             />
                         </Link>
                     )

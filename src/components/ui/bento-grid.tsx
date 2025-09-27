@@ -26,6 +26,7 @@ export const BentoGridItem = ({
     header,
     icon,
     ps_number,
+    waiting_list,
 }: {
     className?: string;
     title?: string | React.ReactNode;
@@ -33,14 +34,20 @@ export const BentoGridItem = ({
     header?: React.ReactNode;
     icon?: React.ReactNode;
     ps_number?: number;
+    waiting_list?: boolean;
 }) => {
     return (
         <div
             className={cn(
-                "row-span-1 rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border border-black/[0.2] justify-between flex flex-col space-y-4 h-full",
+                "row-span-1 rounded-xl group/bento hover:shadow-xl transition duration-200 shadow-input dark:shadow-none p-4 dark:bg-black dark:border-white/[0.2] bg-white border border-black/[0.2] justify-between flex flex-col space-y-4 h-full relative",
                 className
             )}
         >
+            {waiting_list && (
+                <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs px-2 py-0.5 rounded-full border border-yellow-500 z-10 font-semibold shadow-sm">
+                    Waiting List
+                </div>
+            )}
             {header}
             <div className="group-hover/bento:translate-x-2 transition duration-200">
                 <div className="flex items-center space-x-2">
