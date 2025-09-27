@@ -189,7 +189,7 @@ export default function ConfirmationForm() {
         if (isRegistrationClosed) {
             toast({
                 title: "Registration Closed",
-                description: "Sorry, registration has been closed as we've reached our maximum capacity of 40 teams.",
+                description: "Sorry, registration has been closed as we've reached our maximum capacity. ",
                 variant: "destructive",
             });
             return;
@@ -522,8 +522,8 @@ export default function ConfirmationForm() {
                                 <Alert variant="destructive" className="bg-red-100 border-red-300">
                                     <AlertDescription className="text-red-900 text-lg">
                                         🚫 <strong>Registration Closed!</strong><br/>
-                                        Sorry, you're late to the party! We've reached our maximum capacity of 40 teams.<br/>
-                                        Thanks for your interest in DUKInnoFest'25! 🎉
+                                        Sorry, you're late to the party! We've reached our maximum capacity.<br/>
+                                        Thanks for your interest in DUKInnoFest'25! 🚀
                                     </AlertDescription>
                                 </Alert>
                             </div>

@@ -92,7 +92,11 @@ export default function Page() {
         };
 
         const updateItemsWithTeamData = (data: any[]) => {
-            const formattedItems: FormattedItem[] = data.map((team) => ({
+            // Separate regular teams from waiting list teams
+            const regularTeams = data.filter(team => !team.waiting_list);
+            const waitingListTeams = data.filter(team => team.waiting_list);
+
+            const formatTeam = (team: any): FormattedItem => ({
                 id: team.id,
                 title: team.team_name,
                 description: `Solving: ${team.problem_statement_title}`,
@@ -117,16 +121,27 @@ export default function Page() {
                 teamId: team.user_id,
                 ps_number: team.problem_statement_number,
                 waiting_list: team.waiting_list,
-            }));
+            });
+
+            const formattedRegularTeams = regularTeams.map(formatTeam);
+            const formattedWaitingListTeams = waitingListTeams.map(formatTeam);
+
+            // Calculate placeholders: only show up to 35 regular slots
+            // If we have waiting list teams, placeholders fill only up to slot 35
+            const maxRegularSlots = 35;
+            const placeholderCount = formattedWaitingListTeams.length > 0 
+                ? Math.max(0, maxRegularSlots - formattedRegularTeams.length) // Stop at 35 if waiting list exists
+                : Math.max(0, 36 - formattedRegularTeams.length); // Go up to 36 if no waiting list
 
             const updatedItems = [
                 confirmButton,
-                ...formattedItems,
-                ...Array(Math.max(0, 36 - formattedItems.length))
+                ...formattedRegularTeams,
+                ...Array(placeholderCount)
                     .fill(null)
                     .map((_, index) =>
-                        createPlaceholderItem(formattedItems.length + index + 1)
+                        createPlaceholderItem(formattedRegularTeams.length + index + 1)
                     ),
+                ...formattedWaitingListTeams, // Waiting list teams start from slot 36 onwards
             ];
 
             setItems(updatedItems);
