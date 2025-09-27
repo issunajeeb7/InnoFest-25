@@ -22,7 +22,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@supabase/ssr": "^0.5.1",
-    "@supabase/supabase-js": "^2.45.3",
+    "@supabase/supabase-js": "^2.58.0",
     "@tabler/icons-react": "^3.14.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -41,9 +41,12 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/json-schema": "^7.0.15",
     "@types/node": "^20",
+    "@types/prop-types": "^15.7.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/ws": "^8.18.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.7",
     "postcss": "^8",

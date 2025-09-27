@@ -506,7 +506,7 @@ export default function ConfirmationForm() {
                         {!isRegistrationClosed && (
                             <Alert variant="default" className="mt-4 bg-yellow-50 border-yellow-200">
                                 <AlertDescription className="text-yellow-800">
-                                    ⚠️ <strong>Notice:</strong> Late to the party? That's okay! Join our <b>waitlist</b> and get notified if a spot opens up.
+                                    ⚠️ <strong>Notice:</strong> Late to the party? That&apos;s okay! Join our <b>waitlist</b> and get notified if a spot opens up.
                                 </AlertDescription>
                             </Alert>
                         )}
@@ -522,8 +522,8 @@ export default function ConfirmationForm() {
                                 <Alert variant="destructive" className="bg-red-100 border-red-300">
                                     <AlertDescription className="text-red-900 text-lg">
                                         🚫 <strong>Registration Closed!</strong><br/>
-                                        Sorry, you're late to the party! We've reached our maximum capacity.<br/>
-                                        Thanks for your interest in DUKInnoFest'25! 🚀
+                                        Sorry, you&apos;re late to the party! We&apos;ve reached our maximum capacity.<br/>
+                                        Thanks for your interest in DUKInnoFest&apos;25! 🚀
                                     </AlertDescription>
                                 </Alert>
                             </div>

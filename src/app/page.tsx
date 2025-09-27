@@ -81,7 +81,7 @@ export default function Page() {
 
                 // Check if the current user has a team
                 if (session?.user?.id) {
-                    const userTeam = data.find(team => team.user_id === session.user.id);
+                    const userTeam = data.find((team: any) => team.user_id === session.user.id);
                     setUserHasTeam(!!userTeam);
                 }
 
@@ -154,7 +154,7 @@ export default function Page() {
             .on(
                 "postgres_changes",
                 { event: "*", schema: "public", table: "teams" },
-                (payload) => {
+                (payload: any) => {
                     // console.log("Change received!", payload);
                     fetchTeamDetails();
                 }
@@ -164,7 +164,7 @@ export default function Page() {
         return () => {
             subscription.unsubscribe();
         };
-    }, [supabase]);
+    }, [supabase, session?.user?.id]);
 
     return (
         <main>
