@@ -20,6 +20,15 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useSession } from "@/context/SessionContext";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -34,10 +43,41 @@ const genAI = new GoogleGenerativeAI(
     process.env.NEXT_PUBLIC_GEMINI_API_KEY
 );
 
+const themes = [
+    "Agriculture, FoodTech & Rural Development",
+    "Blockchain & Cybersecurity",
+    "Clean & Green Technology",
+    "Fitness & Sports",
+    "Heritage & Culture",
+    "MedTech / BioTech / HealthTech",
+    "Miscellaneous",
+    "Renewable / Sustainable Energy",
+    "Robotics and Drones",
+    "Smart Automation",
+    "Smart Vehicles",
+    "Travel & Tourism",
+    "Transportation & Logistics",
+    "Disaster Management",
+    "Smart Education",
+    "Toys & Games",
+    "Space Technology",
+    "Smart Resource Conservation",
+];
+
 export default function TeamDetails({ params }) {
     const [teamData, setTeamData] = useState(null);
     const [members, setMembers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        theme: "",
+        problem_statement_number: "",
+        problem_statement_title: "",
+        vegetarian_count: 0,
+        day_scholar_count: 0,
+        resources_required: "",
+    });
+    const [isSaving, setIsSaving] = useState(false);
     const router = useRouter();
     const [error, setError] = useState(null);
     const supabase = createClient();
@@ -85,6 +125,15 @@ export default function TeamDetails({ params }) {
                 setError("Failed to fetch team data");
             } else if (data) {
                 setTeamData(data);
+                // Populate edit form data
+                setEditFormData({
+                    theme: data.theme || "",
+                    problem_statement_number: data.problem_statement_number || "",
+                    problem_statement_title: data.problem_statement_title || "",
+                    vegetarian_count: data.vegetarian_count || 0,
+                    day_scholar_count: data.day_scholar_count || 0,
+                    resources_required: data.resources_required || "",
+                });
                 fetchTeamMembers(data.id);
             } else {
                 setError("No team data found");
@@ -94,6 +143,68 @@ export default function TeamDetails({ params }) {
 
         fetchTeamData();
     }, [session, loading, supabase, router, fetchTeamMembers]);
+
+    const handleEditToggle = () => {
+        if (isEditing) {
+            // Reset form data to original values if canceling
+            setEditFormData({
+                theme: teamData.theme || "",
+                problem_statement_number: teamData.problem_statement_number || "",
+                problem_statement_title: teamData.problem_statement_title || "",
+                vegetarian_count: teamData.vegetarian_count || 0,
+                day_scholar_count: teamData.day_scholar_count || 0,
+                resources_required: teamData.resources_required || "",
+            });
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleEditInputChange = (field, value) => {
+        setEditFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSaveChanges = async () => {
+        setIsSaving(true);
+        try {
+            const { error } = await supabase
+                .from("teams")
+                .update({
+                    theme: editFormData.theme,
+                    problem_statement_number: editFormData.problem_statement_number,
+                    problem_statement_title: editFormData.problem_statement_title,
+                    vegetarian_count: editFormData.vegetarian_count,
+                    day_scholar_count: editFormData.day_scholar_count,
+                    resources_required: editFormData.resources_required,
+                })
+                .eq("id", teamData.id);
+
+            if (error) throw error;
+
+            // Update local team data
+            setTeamData(prev => ({
+                ...prev,
+                ...editFormData
+            }));
+
+            setIsEditing(false);
+            toast({
+                title: "Success",
+                description: "Team details updated successfully",
+            });
+        } catch (error) {
+            console.error("Error updating team details:", error);
+            toast({
+                title: "Error",
+                description: "Failed to update team details. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const generateAvatar = (name) => {
         const avatar = createAvatar(lorelei, {
@@ -380,69 +491,171 @@ export default function TeamDetails({ params }) {
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <CardTitle>{teamData.team_name}</CardTitle>
-                            <Link href={"/profile/add-team"}>
-                                <Button>Setup Team</Button>
-                            </Link>
+                            <div className="flex gap-4">
+                                <Link href={"/profile/add-team"}>
+                                    <Button variant="outline">Setup Team</Button>
+                                </Link>
+                                {!isEditing && (
+                                    <Button onClick={handleEditToggle} className="min-w-[120px]">Edit Details</Button>
+                                )}
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent className="max-w-2xl">
-                        <Table>
-                            <TableCaption></TableCaption>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell className="font-bold">
-                                        Room allotted
-                                    </TableCell>
-                                    <TableCell>
-                                        {teamData.room_allotted}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell className="font-bold">
-                                        Theme
-                                    </TableCell>
-                                    <TableCell>{teamData.theme}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell className="font-bold">
-                                        Problem Statement Number
-                                    </TableCell>
-                                    <TableCell>
-                                        {teamData.problem_statement_number}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell className="font-bold">
-                                        Problem Statement Title
-                                    </TableCell>
-                                    <TableCell>
-                                        {teamData.problem_statement_title}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Vegetarian Count</TableCell>
-                                    <TableCell>
-                                        {teamData.vegetarian_count}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Day Scholar Count</TableCell>
-                                    <TableCell>
-                                        {teamData.day_scholar_count}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Resources Required</TableCell>
-                                    <TableCell>
-                                        {teamData.resources_required || "None"}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Confirmed</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                        {isEditing ? (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-theme">Theme *</Label>
+                                    <Select
+                                        value={editFormData.theme}
+                                        onValueChange={(value) => handleEditInputChange('theme', value)}
+                                    >
+                                        <SelectTrigger id="edit-theme">
+                                            <SelectValue placeholder="Select Theme" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {themes.map((theme) => (
+                                                <SelectItem key={theme} value={theme}>
+                                                    {theme}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-ps-number">Problem Statement Number *</Label>
+                                    <Input
+                                        id="edit-ps-number"
+                                        value={editFormData.problem_statement_number}
+                                        onChange={(e) => handleEditInputChange('problem_statement_number', e.target.value)}
+                                        placeholder="SIH1739"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-ps-title">Problem Statement Title *</Label>
+                                    <Input
+                                        id="edit-ps-title"
+                                        value={editFormData.problem_statement_title}
+                                        onChange={(e) => handleEditInputChange('problem_statement_title', e.target.value)}
+                                        placeholder="Problem statement title"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-veg-count">Number of Vegetarians</Label>
+                                    <Input
+                                        id="edit-veg-count"
+                                        type="number"
+                                        min="0"
+                                        max="6"
+                                        value={editFormData.vegetarian_count}
+                                        onChange={(e) => handleEditInputChange('vegetarian_count', parseInt(e.target.value) || 0)}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-scholar-count">Number of Day Scholars</Label>
+                                    <Input
+                                        id="edit-scholar-count"
+                                        type="number"
+                                        min="0"
+                                        max="6"
+                                        value={editFormData.day_scholar_count}
+                                        onChange={(e) => handleEditInputChange('day_scholar_count', parseInt(e.target.value) || 0)}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-resources">Resources Required</Label>
+                                    <Textarea
+                                        id="edit-resources"
+                                        value={editFormData.resources_required}
+                                        onChange={(e) => handleEditInputChange('resources_required', e.target.value)}
+                                        placeholder="List any special resources required"
+                                    />
+                                </div>
+
+                                {/* Action buttons at the bottom */}
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-end pt-8 border-t mt-8 px-4">
+                                    <Button
+                                        variant="destructive"
+                                        onClick={handleEditToggle}
+                                        disabled={isSaving}
+                                        className="w-full sm:w-auto min-w-[140px] order-2 sm:order-1 !bg-red-600 !border-red-600 !text-white hover:!bg-red-700 hover:!border-red-700"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="default"
+                                        onClick={handleSaveChanges}
+                                        disabled={isSaving}
+                                        className="w-full sm:w-auto min-w-[140px] order-1 sm:order-2 !bg-green-600 !border-green-600 !text-white hover:!bg-green-700 hover:!border-green-700"
+                                    >
+                                        {isSaving ? "Saving..." : "Save Changes"}
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableCaption></TableCaption>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="font-bold">
+                                            Room allotted
+                                        </TableCell>
+                                        <TableCell>
+                                            {teamData.room_allotted}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-bold">
+                                            Theme
+                                        </TableCell>
+                                        <TableCell>{teamData.theme}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-bold">
+                                            Problem Statement Number
+                                        </TableCell>
+                                        <TableCell>
+                                            {teamData.problem_statement_number}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-bold">
+                                            Problem Statement Title
+                                        </TableCell>
+                                        <TableCell>
+                                            {teamData.problem_statement_title}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Vegetarian Count</TableCell>
+                                        <TableCell>
+                                            {teamData.vegetarian_count}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Day Scholar Count</TableCell>
+                                        <TableCell>
+                                            {teamData.day_scholar_count}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Resources Required</TableCell>
+                                        <TableCell>
+                                            {teamData.resources_required || "None"}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Status</TableCell>
+                                        <TableCell>Confirmed</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        )}
                         
                         <div className="mt-6">
                             <h3 className="text-lg font-semibold mb-3">Group Photo</h3>
