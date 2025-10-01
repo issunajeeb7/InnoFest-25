@@ -2,7 +2,7 @@ name: SIH Live Stats Scraper
 
 on:
   schedule:
-    # Runs every hour to be respectful to the SIH server
+    # Runs every hour
     - cron: '0 * * * *'
   workflow_dispatch:
 
@@ -28,11 +28,12 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          # --- KEY CHANGE: Pass the proxy secret to the script ---
+          PROXY_SERVER: ${{ secrets.PROXY_SERVER }}
 
-      # --- This new step saves the screenshot ---
       - name: Upload Debug Screenshot
         uses: actions/upload-artifact@v4
         with:
           name: debug-screenshot
           path: debug_screenshot.png
-          if-no-files-found: ignore # Won't cause an error if the scrape was successful
+          if-no-files-found: ignore
