@@ -82,6 +82,8 @@ export default function TeamRegistrationForm() {
                     email: session.user.email,
                     gender: null,
                     is_leader: true,
+                    mobile_number: "",
+                    course: null,
                 },
             ];
             setTeamMembers(initialMembers);
@@ -131,6 +133,8 @@ export default function TeamRegistrationForm() {
                     email: "",
                     gender: null,
                     is_leader: false,
+                    mobile_number: "",
+                    course: null,
                 },
             ];
             setTeamMembers(updatedMembers);
@@ -337,6 +341,69 @@ export default function TeamRegistrationForm() {
                                                 <SelectItem value="Other">
                                                     Other
                                                 </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`mobile_number_${index}`}>
+                                            Phone Number
+                                        </Label>
+                                        <Input
+                                            id={`mobile_number_${index}`}
+                                            value={member.mobile_number}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (/^\d{0,10}$/.test(value)) {
+                                                    handleMemberChange(
+                                                        index,
+                                                        "mobile_number",
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                            placeholder="10-digit phone number"
+                                            required
+                                            pattern="\d{10}"
+                                            title="Please enter a 10-digit phone number"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`course_${index}`}>
+                                            Course
+                                        </Label>
+                                        <Select
+                                            onValueChange={(value) =>
+                                                handleMemberChange(
+                                                    index,
+                                                    "course",
+                                                    value
+                                                )
+                                            }
+                                            defaultValue={member.course}
+                                            required
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select course" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="M.Tech. Computer Science and Engineering, Artificial Intelligence">M.Tech. Computer Science and Engineering, Artificial Intelligence</SelectItem>
+                                                <SelectItem value="M.Tech. Computer Science and Engineering, Connected Systems and Intelligence">M.Tech. Computer Science and Engineering, Connected Systems and Intelligence</SelectItem>
+                                                <SelectItem value="M.Tech. Computer Science and Engineering, Cybersecurity Engineering">M.Tech. Computer Science and Engineering, Cybersecurity Engineering</SelectItem>
+                                                <SelectItem value="M.Tech. Electronics Engineering, AI Hardware">M.Tech. Electronics Engineering, AI Hardware</SelectItem>
+                                                <SelectItem value="M.Tech. Electronics Engineering, IoT and Robotics">M.Tech. Electronics Engineering, IoT and Robotics</SelectItem>
+                                                <SelectItem value="M.Tech. Electronics Engineering, VLSI Design">M.Tech. Electronics Engineering, VLSI Design</SelectItem>
+                                                <SelectItem value="M.Tech. Electronic Product Design">M.Tech. Electronic Product Design</SelectItem>
+                                                <SelectItem value="M.Sc. Applied Physics">M.Sc. Applied Physics</SelectItem>
+                                                <SelectItem value="M.Sc. Computer Science, Artificial Intelligence">M.Sc. Computer Science, Artificial Intelligence</SelectItem>
+                                                <SelectItem value="M.Sc. Computer Science, Cybersecurity">M.Sc. Computer Science, Cybersecurity</SelectItem>
+                                                <SelectItem value="M.Sc. Computer Science, Data Analytics">M.Sc. Computer Science, Data Analytics</SelectItem>
+                                                <SelectItem value="M.Sc. Data Analytics and Computational Science">M.Sc. Data Analytics and Computational Science</SelectItem>
+                                                <SelectItem value="M.Sc. Data Science and Bio-AI">M.Sc. Data Science and Bio-AI</SelectItem>
+                                                <SelectItem value="M.Sc. Data Science and Geoinformatics">M.Sc. Data Science and Geoinformatics</SelectItem>
+                                                <SelectItem value="M.Sc. Ecology, Ecological Informatics">M.Sc. Ecology, Ecological Informatics</SelectItem>
+                                                <SelectItem value="M.Sc. Electronics">M.Sc. Electronics</SelectItem>
+                                                <SelectItem value="M.Sc. Environmental Science">M.Sc. Environmental Science</SelectItem>
+                                                <SelectItem value="MBA">MBA</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
