@@ -1,0 +1,42 @@
+# .github/workflows/scraper.yml
+
+name: SIH Live Stats Scraper
+
+on:
+  # This section defines the triggers for the workflow
+  schedule:
+    # Runs the script automatically every 15 minutes
+    - cron: '*/15 * * * *'
+  
+  # This line adds a button on the Actions tab to run the workflow manually
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    # The job will run on the latest version of an Ubuntu Linux virtual machine
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checks out your repository code so the job can access it
+      - name: Check out this repo
+        uses: actions/checkout@v4
+
+      # Step 2: Sets up the Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Step 3: Installs all the necessary Python libraries and Playwright's browser
+      - name: Install dependencies
+        run: |
+          pip install playwright pandas supabase
+          playwright install --with-deps chromium
+
+      # Step 4: Runs your Python scraper script
+      - name: Run Scraper
+        run: python update_stats.py
+        env:
+          # This securely loads the secrets you created in Step 1
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
