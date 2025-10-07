@@ -158,52 +158,80 @@ export default function TeamRegistrationForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!teamId) return;
 
-        // Filter out members who don't have a name or email
-        const validMembers = teamMembers.filter(
-            (member) => member.full_name && member.email
-        );
+        // 1. Fetch current members from the database
+        const { data: existingMembers, error: fetchError } = await supabase
+            .from("team_members")
+            .select("id")
+            .eq("team_id", teamId);
 
-        if (validMembers.length === 0) {
+        if (fetchError) {
             toast({
-                title: "No members to save",
-                description: "Please add at least one team member.",
+                title: "Error fetching existing members",
+                description: fetchError.message,
                 variant: "destructive",
             });
             return;
         }
 
-        // Prepare data for upsert, ensuring team_id is set for all
-        const membersToUpsert = validMembers.map((member) => ({
-            ...member,
-            team_id: teamId, // Ensure team_id is part of the member object
-        }));
+        const validMembers = teamMembers.filter(
+            (member) => member.full_name && member.email
+        );
+
+        // 2. Identify which members to update, insert, and delete
+        const memberIdsInState = new Set(
+            validMembers.map((member) => member.id).filter(Boolean)
+        );
+        const existingMemberIds = new Set(
+            existingMembers.map((member) => member.id)
+        );
+
+        const membersToUpdate = validMembers.filter((member) => member.id);
+        const membersToInsert = validMembers.filter((member) => !member.id);
+        const memberIdsToDelete = [...existingMemberIds].filter(
+            (id) => !memberIdsInState.has(id)
+        );
 
         try {
-            // Use upsert to insert new members and update existing ones
-            const { error } = await supabase
-                .from("team_members")
-                .upsert(membersToUpsert, {
-                    onConflict: "id", // Assumes 'id' is the primary key
-                    ignoreDuplicates: false,
-                });
-
-            if (error) {
-                throw error;
+            // 3. Perform database operations
+            if (membersToUpdate.length > 0) {
+                const { error } = await supabase
+                    .from("team_members")
+                    .upsert(membersToUpdate);
+                if (error) throw error;
             }
 
+            if (membersToInsert.length > 0) {
+                const newMembersPayload = membersToInsert.map(
+                    ({ id, ...member }) => ({ ...member, team_id: teamId })
+                );
+                const { error } = await supabase
+                    .from("team_members")
+                    .insert(newMembersPayload);
+                if (error) throw error;
+            }
+
+            if (memberIdsToDelete.length > 0) {
+                const { error } = await supabase
+                    .from("team_members")
+                    .delete()
+                    .in("id", memberIdsToDelete);
+                if (error) throw error;
+            }
+
+            // 4. Finalize and give feedback
+            localStorage.removeItem(`teamMembers_${teamId}`);
             toast({
                 title: "Team members saved!",
                 description: "Your team has been successfully updated.",
             });
-
             router.push("/profile");
         } catch (error) {
             console.error("Error saving team members:", error);
             toast({
                 title: "An error occurred",
-                description:
-                    "Could not save team members. " + error.message,
+                description: "Could not save team members. " + error.message,
                 variant: "destructive",
             });
         }
