@@ -158,89 +158,60 @@ export default function TeamRegistrationForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!session || !teamId) return;
+
+        // Filter out members who don't have a name or email
+        const validMembers = teamMembers.filter(
+            (member) => member.full_name && member.email
+        );
+
+        if (validMembers.length === 0) {
+            toast({
+                title: "No members to save",
+                description: "Please add at least one team member.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        // Prepare data for upsert, ensuring team_id is set for all
+        const membersToUpsert = validMembers.map((member) => ({
+            ...member,
+            team_id: teamId, // Ensure team_id is part of the member object
+        }));
 
         try {
-            const { data: existingMembers, error: fetchError } = await supabase
+            // Use upsert to insert new members and update existing ones
+            const { error } = await supabase
                 .from("team_members")
-                .select("id, email")
-                .eq("team_id", teamId);
+                .upsert(membersToUpsert, {
+                    onConflict: "id", // Assumes 'id' is the primary key
+                    ignoreDuplicates: false,
+                });
 
-            if (fetchError) throw fetchError;
-
-            const membersToInsert = [];
-            const membersToUpdate = [];
-            const memberIdsToKeep = new Set();
-
-            const uniqueTeamMembers = teamMembers.filter(
-                (member, index, self) =>
-                    index === self.findIndex((m) => m.email === member.email)
-            );
-
-            const currentTime = new Date().toISOString();
-
-            uniqueTeamMembers.forEach((member) => {
-                const existingMember = existingMembers.find(
-                    (em) => em.email === member.email
-                );
-                if (existingMember) {
-                    membersToUpdate.push({
-                        ...member,
-                        id: existingMember.id,
-                        team_id: teamId,
-                        created_at: currentTime, // Add this line
-                    });
-                    memberIdsToKeep.add(existingMember.id);
-                } else {
-                    membersToInsert.push({
-                        ...member,
-                        team_id: teamId,
-                        created_at: currentTime, // Add this line
-                    });
-                }
-            });
-
-            const memberIdsToDelete = existingMembers
-                .filter((em) => !memberIdsToKeep.has(em.id))
-                .map((em) => em.id);
-
-            if (membersToInsert.length > 0) {
-                const { error: insertError } = await supabase
-                    .from("team_members")
-                    .insert(membersToInsert);
-                if (insertError) throw insertError;
-            }
-
-            if (membersToUpdate.length > 0) {
-                const { error: updateError } = await supabase
-                    .from("team_members")
-                    .upsert(membersToUpdate, { onConflict: ["id"] });
-                if (updateError) throw updateError;
-            }
-
-            if (memberIdsToDelete.length > 0) {
-                const { error: deleteError } = await supabase
-                    .from("team_members")
-                    .delete()
-                    .in("id", memberIdsToDelete);
-                if (deleteError) throw deleteError;
+            if (error) {
+                throw error;
             }
 
             toast({
-                title: "Updated successfully!",
-                description: "Team members updated successfully!",
+                title: "Team members saved!",
+                description: "Your team has been successfully updated.",
             });
-            loadTeamMembers();
+
             router.push("/profile");
         } catch (error) {
-            console.error("Error updating team members:", error);
+            console.error("Error saving team members:", error);
             toast({
-                title: "Failed to update!",
-                description: "Failed to update team members. Please try again.",
+                title: "An error occurred",
+                description:
+                    "Could not save team members. " + error.message,
                 variant: "destructive",
             });
         }
     };
+
+    if (!session) {
+        return null;
+    }
 
     return (
         <>
