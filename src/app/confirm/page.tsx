@@ -106,7 +106,7 @@ export default function ConfirmationForm() {
                 if (!teamsError && teamsData) {
                     const count = teamsData.length;
                     setTotalTeamCount(count);
-                    setIsRegistrationClosed(count >= 40);
+                    setIsRegistrationClosed(count >= 100);
                 }
 
                 setIsLoading(false);
