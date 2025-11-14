@@ -295,8 +295,11 @@ export default function Page() {
                     </div>
                 </div>
             </header>
-            <div className="max-w-4xl px-6 lg:px-0 mx-auto pt-12 font-bold text-3xl text-gray-800">
+            {/* <div className="max-w-4xl px-6 lg:px-0 mx-auto pt-12 font-bold text-3xl text-gray-800">
                 Smart India Internal Hackathon Teams
+            </div> */}
+            <div className="max-w-4xl px-6 lg:px-0 mx-auto pt-12 font-bold text-3xl text-gray-800">
+                DUKInnoFest&apos;25 Hackathon Teams
             </div>
             <BentoGrid className="max-w-4xl mx-auto py-12 px-4 lg:px-0">
                 {items.map((item, i) =>
@@ -348,13 +351,11 @@ export default function Page() {
                         is a collaborative effort by Digital University Kerala,
                         Institution&apos;s Innovation Council - DUK and the
                         Innovation Club of DUK. This screening event aims to
-                        identify and nurture talented innovators who will go on
-                        to represent our institution at the prestigious
-                        national-level Smart India Hackathon.
+                        identify and nurture talented innovators of our institution.
                     </p>
                 </div>
 
-                <dl className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-4">
+                <dl className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
                             <Label>Digital University Kerala</Label>
@@ -403,6 +404,7 @@ export default function Page() {
                         </dd>
                     </div>
 
+                    {/*
                     <div className="flex flex-col my-auto gap-4 items-center rounded-lg border border-gray-100 px-4 py-8 text-center">
                         <dt className="order-last text-lg font-medium text-gray-500">
                             <Label>Smart India Hackathon 2025</Label>
@@ -418,6 +420,7 @@ export default function Page() {
                             ></Image>
                         </dd>
                     </div>
+                    */}
                 </dl>
             </div>
         </main>

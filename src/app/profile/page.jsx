@@ -371,10 +371,13 @@ export default function TeamDetails({ params }) {
                     <div className="space-y-2">
                         <p>Your presentation has been uploaded successfully!</p>
                         <p className="font-semibold">Thank you for participating in DUK Innofest&apos;25 - we will miss you! 🎉</p>
-                        <img 
+                        <Image 
                             src="/thank-you.gif"
                             alt="Thank you"
+                            width={400}
+                            height={300}
                             className="w-full rounded-lg mt-2"
+                            unoptimized
                         />
                     </div>
                 ),
