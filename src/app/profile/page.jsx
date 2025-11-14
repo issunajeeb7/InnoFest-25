@@ -367,7 +367,18 @@ export default function TeamDetails({ params }) {
         } else {
             toast({
                 title: "Upload successful",
-                description: "Your presentation has been uploaded",
+                description: (
+                    <div className="space-y-2">
+                        <p>Your presentation has been uploaded successfully!</p>
+                        <p className="font-semibold">Thank you for participating in DUK Innofest&apos;25 - we will miss you! 🎉</p>
+                        <img 
+                            src="/thank-you.gif"
+                            alt="Thank you"
+                            className="w-full rounded-lg mt-2"
+                        />
+                    </div>
+                ),
+                duration: 8000,
             });
             setTeamData({ ...teamData, presentation: fileName });
         }
@@ -769,41 +780,73 @@ export default function TeamDetails({ params }) {
                     </CardHeader>
                     <CardContent>
                         {teamData.presentation ? (
-                            <div>
-                                <p>
-                                    Current presentation:{" "}
-                                    <Link
-                                        className="text-blue-500"
-                                        href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/presentation/${teamData.presentation}`}
-                                        target="_blank"
-                                    >
-                                        link
-                                    </Link>
+                            <div className="space-y-4">
+                                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <p className="text-sm font-semibold text-green-800 mb-1">
+                                                Current Presentation
+                                            </p>
+                                            <p className="text-sm text-green-700 break-all">
+                                                {teamData.presentation}
+                                            </p>
+                                        </div>
+                                        <Link
+                                            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/presentation/${teamData.presentation}`}
+                                            target="_blank"
+                                        >
+                                            <Button size="sm" variant="outline" className="ml-2">
+                                                View
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-gray-600">
+                                    Upload a new presentation to replace the current one
                                 </p>
-                                <p>
-                                    Upload a new presentation to replace the
-                                    current one
-                                </p>
+                                <div className="w-full max-w-4xl mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+                                    <FileUpload onChange={handleFileChange} />
+                                </div>
+                                {file && (
+                                    <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <p className="text-sm text-blue-800">
+                                            New file selected: <span className="font-semibold">{file.name}</span>
+                                        </p>
+                                        <Button
+                                            onClick={handleUpload}
+                                            disabled={uploading}
+                                            size="sm"
+                                            className="!bg-green-600 hover:!bg-green-700 !text-white !border-green-600"
+                                        >
+                                            {uploading ? "Uploading..." : "Replace Presentation"}
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
-                            <p>No presentation uploaded yet.</p>
-                        )}
-
-                        <div className="w-full max-w-4xl mx-auto min-h-96 mt-4 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
-                            <FileUpload onChange={handleFileChange} />
-                        </div>
-                        {file && (
-                            <p className="mt-2">Selected file: {file.name}</p>
+                            <div className="space-y-4">
+                                <p className="text-gray-600">No presentation uploaded yet.</p>
+                                <div className="w-full max-w-4xl mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+                                    <FileUpload onChange={handleFileChange} />
+                                </div>
+                                {file && (
+                                    <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <p className="text-sm text-blue-800">
+                                            Selected: <span className="font-semibold">{file.name}</span>
+                                        </p>
+                                        <Button
+                                            onClick={handleUpload}
+                                            disabled={uploading}
+                                            size="sm"
+                                            className="!bg-green-600 hover:!bg-green-700 !text-white !border-green-600"
+                                        >
+                                            {uploading ? "Uploading..." : "Upload"}
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </CardContent>
-                    <CardFooter className="justify-end">
-                        <Button
-                            onClick={handleUpload}
-                            disabled={!file || uploading}
-                        >
-                            {uploading ? "Uploading..." : "Upload Presentation"}
-                        </Button>
-                    </CardFooter>
                 </Card>
             </section>
         </section>
