@@ -506,9 +506,11 @@ export default function TeamDetails({ params }) {
                         <div className="flex justify-between items-center">
                             <CardTitle>{teamData.team_name}</CardTitle>
                             <div className="flex gap-4">
+                                {/*
                                 <Link href={"/profile/add-team"}>
                                     <Button variant="outline">Setup Team</Button>
                                 </Link>
+                                */}
                                 {!isEditing && (
                                     <Button onClick={handleEditToggle} className="min-w-[120px]">Edit Details</Button>
                                 )}
@@ -742,9 +744,11 @@ export default function TeamDetails({ params }) {
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <CardTitle>{teamData.team_name}</CardTitle>
+                            {/*
                             <Link href={"/profile/add-team"}>
                                 <Button>Setup Team</Button>
                             </Link>
+                            */}
                         </div>
                     </CardHeader>
                     <CardContent>

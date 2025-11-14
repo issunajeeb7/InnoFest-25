@@ -28,6 +28,12 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
             const {
                 data: { session },
             } = await supabase.auth.getSession();
+            console.log("=== SessionContext fetchSession ===");
+            console.log("Session from Supabase:", session);
+            if (session?.user) {
+                console.log("User ID from session:", session.user.id);
+                console.log("User email from session:", session.user.email);
+            }
             setSession(session);
             setLoading(false);
         };
@@ -37,6 +43,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
+            console.log("=== SessionContext onAuthStateChange ===");
+            console.log("Event:", _event);
+            console.log("Session:", session);
+            if (session?.user) {
+                console.log("User ID:", session.user.id);
+                console.log("User email:", session.user.email);
+            }
             setSession(session);
             setLoading(false);
         });
